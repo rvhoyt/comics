@@ -280,7 +280,6 @@ function invertElement(obj) {
   } else {
     obj.invert = obj.invert ? 0 : 1;
   }
-  console.log(obj.invert);
   design.renderAll();
 }
 
@@ -378,18 +377,8 @@ function flipY() {
 function copyElement() {
   var active = design.getActiveObject();
   design.getActiveObject().clone(function(cloned) {
-    if (cloned.type === 'activeSelection') {
-      cloned.forEachObject(function(obj, i, a) {
-        cloned._objects[i].blur = active._objects[i].blur;
-        cloned._objects[i].invert = active._objects[i].invert;
-      });
-    } else {
-      cloned.blur = active.blur;
-      cloned.invert = active.invert;
-    }
-    cloned.perPixelTargetFind = true;
     _clipboard = cloned;
-  });
+  }, ['invert', 'blur', 'perPixelTargetFind']);
 }
 
 function pasteElement() {
@@ -401,14 +390,26 @@ function pasteElement() {
       left: clonedObj.left + 10,
       top: clonedObj.top + 10,
       evented: true,
-      perPixelTargetFind: true
+      perPixelTargetFind: true,
+      blur: _clipboard.blur,
+      invert: _clipboard.invert
     });
     var objs = [];
+    function processGroup(newObj, oldObj) {
+      if (newObj.type === 'group') {
+        newObj.forEachObject(function(obj, i) {
+          obj.blur = oldObj._objects[i].blur;
+          obj.invert = oldObj._objects[i].invert;
+          newObj[i] = processGroup(obj, oldObj._objects[i]);
+        });
+      }
+      return newObj;
+    }
     if (clonedObj.type === 'activeSelection') {
       // active selection needs a reference to the canvas.
       clonedObj.design = design;
-      console.log(clonedObj);
       clonedObj.forEachObject(function(obj, i) {
+        obj = processGroup(obj, _clipboard._objects[0]);
         obj.set({
           top: obj.top + top,
           left: obj.left + left,
@@ -419,8 +420,7 @@ function pasteElement() {
         design.add(obj);
       });
     } else {
-      clonedObj.blur = _clipboard.blur;
-      clonedObj.invert = _clipboard.invert;
+      clonedObj = processGroup(clonedObj, _clipboard);
       objs.push(clonedObj);
       design.add(clonedObj);
     }

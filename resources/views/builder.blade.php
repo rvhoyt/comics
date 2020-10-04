@@ -23,8 +23,6 @@
         <button type="button" onclick="setCanvas(682, 270)">Canvas 1 Line</button>
         <button type="button" onclick="setCanvas(682, 530)">Canvas Half Page</button>
         <button type="button" onclick="setCanvas(682, 1050)">Canvas Full Page</button>
-        <br/>
-        <button type="button" onclick="saveImage()">Save Image</button>
         <br/><br/>
         <button type="button" onclick="groupElements()">Group</button>
         <button type="button" onclick="ungroupElements()">Ungroup</button>
@@ -34,7 +32,7 @@
         <label>Opacity: <input id="opacitySlider" value="1" min="0" max="1" step="0.01" type="range" onchange="opacityElement(this.value)"/></label>
         <br/><br/>
         <button type="button" onclick="invertElement()">Invert</button>
-        
+        <br/><br/>
         <button type="button" onclick="flipX()">Flip Horizontally</button>
         <button type="button" onclick="flipY()">Flip Vertically</button>
         <br/><br/> 
@@ -50,9 +48,11 @@
           <button type="button" onclick="startPlaceTextboxPoint()">Place text line</button>
           <label>Font Size: <input id="fontSizeSlider" value="12" min="1" max="81" step="1" type="range" onchange="fontSizeElement(this.value)"/></label>
           
-          <label>Font Size: <input id="borderSlider" value="12" min="1" max="10" step="1" type="range" onchange="borderElement(this.value)"/></label>
+          <label>Border Size: <input id="borderSlider" value="12" min="0" max="10" step="1" type="range" onchange="borderElement(this.value)"/></label>
           
         </div>
+        <br/><br/>
+        <button type="button" onclick="saveImage()">Save Image</button>
       </div>
     </div>
     <canvas id="hiddenCanvas"></canvas>
