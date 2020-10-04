@@ -8,7 +8,7 @@
           @auth
             <a href="{{ url('/builder') }}">Go to strip builder</a>
           @else
-            <span>Please Register</span>
+            <span>Please Login to make strips</span>
           @endif
           <br/><br/>
           <hr/>
