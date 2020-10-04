@@ -251,36 +251,48 @@ function ungroupElements() {
 }
 
 function blurElement(value, obj) {
+  fabric.Object.prototype.objectCaching = false;
+  var one = false;
   if (!obj) {
+    one = true;
     obj = design.getActiveObject();
   }
   if (obj.type === 'textbox') {
     obj.blur = value * 10;
   } else if (obj.type === 'activeSelection' || obj.type === 'group') {
-    obj._objects.forEach(function(el){
+    obj.forEachObject(function(el){
       blurElement(value, el);
     });
   } else {
     obj.blur = value;
   }
-  design.renderAll();
+  if (one) {
+    design.renderAll();
+    fabric.Object.prototype.objectCaching = true;
+  }
 }
 
 function invertElement(obj) {
+  var one = false;
   if (!obj) {
+    one = true;
     obj = design.getActiveObject();
   }
   if (obj.type === 'textbox') {
     return;
   }
   if (obj.type === 'activeSelection' || obj.type === 'group') {
-    obj._objects.forEach(function(el){
+    obj.forEachObject(function(el){
       invertElement(el);
     });
   } else {
     obj.invert = obj.invert ? 0 : 1;
   }
-  design.renderAll();
+  if (one) {
+    fabric.Object.prototype.objectCaching = false;
+    design.renderAll();
+    fabric.Object.prototype.objectCaching = true;
+  }
 }
 
 function opacityElement(value, obj) {
@@ -294,7 +306,9 @@ function opacityElement(value, obj) {
   } else {
     obj.opacity = value;
   }
+  fabric.Object.prototype.objectCaching = false;
   design.renderAll();
+  fabric.Object.prototype.objectCaching = true;
 }
 
 function fontSizeElement(value, obj) {
@@ -308,7 +322,9 @@ function fontSizeElement(value, obj) {
   } else {
     obj.fontSize = value;
   }
+  fabric.Object.prototype.objectCaching = false;
   design.renderAll();
+  fabric.Object.prototype.objectCaching = true;
 }
 
 function borderElement(value, obj) {
@@ -322,7 +338,9 @@ function borderElement(value, obj) {
   } else {
     obj.textboxBorderSize = value;
   }
+  fabric.Object.prototype.objectCaching = false;
   design.renderAll();
+  fabric.Object.prototype.objectCaching = true;
 }
 
 
@@ -512,6 +530,5 @@ fabric.Image.prototype._render = function(ctx) {
   ctx.filter = 'none';
 }
 
-
-fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat('active');
 fabric.Object.prototype.objectCaching = true;
+fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat('active');
