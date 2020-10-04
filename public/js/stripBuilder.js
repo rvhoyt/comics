@@ -514,3 +514,4 @@ fabric.Image.prototype._render = function(ctx) {
 
 
 fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat('active');
+fabric.Object.prototype.objectCaching = true;
