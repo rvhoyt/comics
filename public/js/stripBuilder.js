@@ -86,11 +86,32 @@ document.addEventListener("DOMContentLoaded", function(){
       } else if (obj) {
         design.remove(obj);
       }
+      design.discardActiveObject();
       design.renderAll();
     } else if (e.which === 67 && e.ctrlKey) {
       copyElement();
     } else if (e.which === 86 && e.ctrlKey) {
       pasteElement();
+    } else if (e.which === 40) {
+      /*down*/
+      var obj = design.getActiveObject();
+      obj.top++;
+      design.renderAll();
+    } else if (e.which === 39) {
+      /*right*/
+      var obj = design.getActiveObject();
+      obj.left++;
+      design.renderAll();
+    } else if (e.which === 38) {
+      /*up*/
+      var obj = design.getActiveObject();
+      obj.top--;
+      design.renderAll();
+    } else if (e.which === 37) {
+      /*left*/
+      var obj = design.getActiveObject();
+      obj.left--;
+      design.renderAll();
     }
   });
 
