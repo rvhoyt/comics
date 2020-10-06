@@ -20,10 +20,13 @@
           </div>
           @foreach ($strips as $strip)
               <div class="col-sm-2">
-                <a href="/strips/{{ $strip->id }}" class="card">
-                  <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
-                  <strong>{{ $strip->title }}</strong>
-                </a>
+                <div class="card">
+                  <a href="/strips/{{ $strip->id }}">
+                    <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
+                    <strong>{{ $strip->title }}</strong>
+                  </a>
+                  <span>{{$strip->owner->name}}</span>
+                </div>
               </div>
           @endforeach
         </div>

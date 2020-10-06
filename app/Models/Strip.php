@@ -13,4 +13,12 @@ class Strip extends Model
       'url',
       'user'
     ];
+    
+    public function comments() {
+      return $this->hasMany('App\Models\Comment');
+    }
+    
+    public function owner() {
+      return $this->belongsTo('App\Models\User', 'user');
+    }
 }

@@ -49,3 +49,20 @@ Route::post('/builder', function (Request $request) {
 });
 
 Route::get('/strips/{id}', [App\Http\Controllers\StripController::class, 'index'])->name('strip');
+
+Route::post('/strips/{id}/comment', function(Request $request, $id) {
+  $data = $request->validate([
+      'comment' => 'required|max:1000',
+  ]);
+  
+  $data['user_id'] = $request->user()->id;
+  $data['strip_id'] = $id;
+  
+  tap(new App\Models\Comment($data))->save();
+  
+  return redirect('/strips/' . $id);
+});
+
+Route::get('/comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'delete']);
+
+Route::post('/comment/{id}', [App\Http\Controllers\CommentController::class, 'edit']);
