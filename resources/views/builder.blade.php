@@ -1,17 +1,31 @@
 @extends('layouts.app')
 @section('content')
+<button type="button" class="drawer-button">Items</button>
+<button type="button" class="drawer-button">Shapes</button>
+<button type="button" class="drawer-button">Characters</button>
+<button type="button" class="drawer-button">Pieces</button>
 <div class="drawer">
   <?php
-    $files = scandir('shapes');
+    $folders = ['items', 'shapes', 'characters', 'pieces'];
     
-    foreach($files as $file) {
-      if ($file === '.' || $file === '..') {
-        continue;
-      }
-      $img = file_get_contents('shapes/' . $file);
-      $img = 'data:image/svg+xml;base64,' . base64_encode($img);
+    foreach($folders as $folder) {
+      $files = scandir('shapes/' . $folder);
       ?>
-      <div draggable="true" ondragstart="drag(event)" data-src="<?php echo $img;?>" class="draggableImage">
+      <div class="drawer-container" id="drawer-<?php echo $folder;?>" style="display:none">
+      <?php
+      
+      foreach($files as $file) {
+        if ($file === '.' || $file === '..') {
+          continue;
+        }
+        $img = file_get_contents('shapes/' . $folder . '/' . $file);
+        $img = 'data:image/svg+xml;base64,' . base64_encode($img);
+        ?>
+        <div draggable="true" ondragstart="drag(event)" data-src="<?php echo $img;?>" class="draggableImage">
+        </div>
+        <?php
+      }
+      ?>
       </div>
       <?php
     }
@@ -67,9 +81,10 @@
             <label for="title">Title</label>
             <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" placeholder="Title" value="{{ old('title') }}" required>
         </div>
-          <textarea style="display:none" class="form-control @error('url') is-invalid @enderror" id="url" name="url" placeholder="URL" value="{{ old('url') }}"></textarea>
+          
+          <textarea style="display:none" class="form-control @error('url') is-invalid @enderror" id="url" name="url" placeholder="URL" value="{{ old('url') }}" maxlength="1000"></textarea>
         <div class="form-group">
-            <label for="description">Description</label>
+            <label id="description-label" for="description">Description  <span id="description-length">0</span>/1000</label>
             <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="description" required>{{ old('description') }}</textarea>
         </div>
         <button disabled="disabled" id="submit-button" type="submit" class="btn btn-primary">Submit</button>

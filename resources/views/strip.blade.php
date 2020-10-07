@@ -20,7 +20,7 @@
     
     <div class="row">
       <div class="col-sm-6">
-      @foreach ($strip->comments as $comment)
+      @foreach ($comments as $comment)
         <div class="comment">
           <div class="card">
             <div class="card-header">

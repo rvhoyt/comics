@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Strip;
+use App\Models\Comment;
 
 class StripController extends Controller
 {
@@ -26,6 +27,8 @@ class StripController extends Controller
     {
         $strip = Strip::find($id);
         
-        return view('strip', ['strip' => $strip]);
+        $comments = Comment::where('strip_id', (int)$id)->orderBy('created_at', 'DESC')->get();
+        
+        return view('strip', ['strip' => $strip, 'comments' => $comments]);
     }
 }

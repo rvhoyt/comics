@@ -1,4 +1,27 @@
 document.addEventListener("DOMContentLoaded", function(){
+  document.getElementById('description').addEventListener('keyup', function(e) {
+    var len = e.target.value.length;
+    document.getElementById('description-length').innerText = len;
+    if (len > 1000) {
+      document.getElementById('description-label').style.color = 'red';
+      document.getElementById('submit-button').style.display = 'none';
+    } else {
+      document.getElementById('description-label').style.color = 'black';
+      document.getElementById('submit-button').style.display = 'inline-block';
+    }
+  });
+  
+  document.addEventListener('click', function (event) {
+    if (!event.target.matches('.drawer-button')) {return};
+    event.preventDefault();
+    var drawer = event.target.innerText.toLowerCase();
+    [].forEach.call(document.querySelectorAll('.drawer-container'), function(el) {
+      el.style.display = 'none';
+    });
+    document.getElementById('drawer-' + drawer).style.display = 'block';
+    
+  }, false);
+  
   design = new fabric.Canvas('design', {
     containerClass: 'design',
     stopContextMenu: true,
@@ -90,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function(){
       design.renderAll();
     } else if (e.which === 67 && e.ctrlKey) {
       copyElement();
-    } else if (e.which === 86 && e.ctrlKey) {
+    } else if (e.which === 86 && e.ctrlKey && (e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT')) {
       pasteElement();
     } else if (e.which === 40) {
       /*down*/
