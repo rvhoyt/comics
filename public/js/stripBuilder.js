@@ -11,17 +11,6 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
   
-  document.addEventListener('click', function (event) {
-    if (!event.target.matches('.drawer-button')) {return};
-    event.preventDefault();
-    var drawer = event.target.innerText.toLowerCase();
-    [].forEach.call(document.querySelectorAll('.drawer-container'), function(el) {
-      el.style.display = 'none';
-    });
-    document.getElementById('drawer-' + drawer).style.display = 'block';
-    
-  }, false);
-  
   design = new fabric.Canvas('design', {
     containerClass: 'design',
     stopContextMenu: true,

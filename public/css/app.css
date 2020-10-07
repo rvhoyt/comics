@@ -10947,3 +10947,22 @@ a.text-dark:focus {
   .show{
     display:block!important;
   }
+
+.tabbed-area input { display: none; }
+.tabbed-area input + label { display: inline-block }
+.tabbed-area input ~ .drawer .drawer-container { display: none }
+
+/* show contents only for selected tab */
+#tab1:checked ~ .drawer #drawer-items,
+#tab2:checked ~ .drawer #drawer-shapes,
+#tab3:checked ~ .drawer #drawer-characters,
+#tab4:checked ~ .drawer #drawer-pieces { display: block; }
+
+#tab1:checked ~ label[for=tab1],
+#tab2:checked ~ label[for=tab2],
+#tab3:checked ~ label[for=tab3],
+#tab4:checked ~ label[for=tab4] {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}

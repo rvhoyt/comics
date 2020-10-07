@@ -1,35 +1,43 @@
 @extends('layouts.app')
 @section('content')
-<button type="button" class="drawer-button">Items</button>
-<button type="button" class="drawer-button">Shapes</button>
-<button type="button" class="drawer-button">Characters</button>
-<button type="button" class="drawer-button">Pieces</button>
-<div class="drawer">
-  <?php
-    $folders = ['items', 'shapes', 'characters', 'pieces'];
-    
-    foreach($folders as $folder) {
-      $files = scandir('shapes/' . $folder);
-      ?>
-      <div class="drawer-container" id="drawer-<?php echo $folder;?>" style="display:none">
-      <?php
+<div class="tabbed-area">
+  <input type="radio" name="tabs" id="tab1" checked />
+  <input type="radio" name="tabs" id="tab2" />
+  <input type="radio" name="tabs" id="tab3" />
+  <input type="radio" name="tabs" id="tab4" />
+  
+  <label class="btn btn-outline-secondary" for="tab1">Items</label>
+  <label class="btn btn-outline-secondary" for="tab2">Shapes</label>
+  <label class="btn btn-outline-secondary" for="tab3">Characters</label>
+  <label class="btn btn-outline-secondary" for="tab4">Pieces</label>
+  
+  <div class="drawer">
+    <?php
+      $folders = ['items', 'shapes', 'characters', 'pieces'];
       
-      foreach($files as $file) {
-        if ($file === '.' || $file === '..') {
-          continue;
-        }
-        $img = file_get_contents('shapes/' . $folder . '/' . $file);
-        $img = 'data:image/svg+xml;base64,' . base64_encode($img);
+      foreach($folders as $folder) {
+        $files = scandir('shapes/' . $folder);
         ?>
-        <div draggable="true" ondragstart="drag(event)" data-src="<?php echo $img;?>" class="draggableImage">
+        <div class="drawer-container" id="drawer-<?php echo $folder;?>">
+        <?php
+        
+        foreach($files as $file) {
+          if ($file === '.' || $file === '..') {
+            continue;
+          }
+          $img = file_get_contents('shapes/' . $folder . '/' . $file);
+          $img = 'data:image/svg+xml;base64,' . base64_encode($img);
+          ?>
+          <div draggable="true" ondragstart="drag(event)" data-src="<?php echo $img;?>" class="draggableImage">
+          </div>
+          <?php
+        }
+        ?>
         </div>
         <?php
       }
-      ?>
-      </div>
-      <?php
-    }
-  ?> 
+    ?> 
+  </div>
 </div>
     <div class="canvas-container">
       <canvas id="design" width="1000" height="600"></canvas>
