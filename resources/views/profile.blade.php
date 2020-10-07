@@ -5,7 +5,7 @@
   <h1>{{$user->name}}</h1>
   <div class="col-sm-12 row">
     @foreach ($strips as $strip)
-        <div class="col-sm-2">
+        <div class="col-sm-2 mb-3">
           <div class="card" title="{{$strip->title}}">
             <a href="/strips/{{ $strip->id }}">
               <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
