@@ -187,6 +187,7 @@ function setCanvas(width, height, skip = false) {
 
 function saveImage() {
   design.setZoom(1);
+  design.absolutePan({x:0, y:0});
   design.discardActiveObject().renderAll();
   var hiddenCanvas = document.getElementById('hiddenCanvas');
   hiddenCanvas.width = canvasWidth;
