@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
   document.addEventListener('keydown', function(e) {
-    if (e.path[0].type !== 'textarea' && (e.which === 8 || e.which === 46)) {
+    if ((e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT') && (e.which === 8 || e.which === 46)) {
       e.preventDefault();
       var obj = design.getActiveObject();
       if (obj && obj._objects) {
