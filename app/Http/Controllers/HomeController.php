@@ -26,6 +26,7 @@ class HomeController extends Controller
     public function index($page = 1)
     {
       
+        $userCount = DB::table('users')->count();
         $count = DB::table('strips')->count();
         
         $offset = ((int)$page - 1) * 12;
@@ -43,7 +44,9 @@ class HomeController extends Controller
         return view('home', [
           'strips' => $strips,
           'nextPage' => $nextPage,
-          'currentPage' => $page
+          'currentPage' => $page,
+          'stripCount' => $count,
+          'userCount' => $userCount
         ]);
     }
 }

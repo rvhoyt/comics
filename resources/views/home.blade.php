@@ -4,7 +4,11 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-          <h1>Welcome to a Comic Strip builder test.</h1>
+          <div class="alert alert-success float-right">
+            <div>{{$userCount}} Artists</div>
+            <div>{{$stripCount}} Strips</div>
+          </div>
+          <h1>Welcome to a Comic Strip builder!</h1>
           @auth
             <a href="{{ url('/builder') }}">Go to strip builder</a>
           @else
