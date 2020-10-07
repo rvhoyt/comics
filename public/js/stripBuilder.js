@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function(){
     stopContextMenu: true,
     preserveObjectStacking: true
   });
+  design.wrapperEl.addEventListener('mousedown', startPan);
   design.setWidth(document.querySelector('.design').offsetWidth-2);
   
   setCanvas(682, 270, true);
@@ -130,12 +131,14 @@ document.addEventListener("DOMContentLoaded", function(){
   /* image adding*/
   design.on('drop', function(ev) {
     var zoom = design.getZoom();
+    var shiftX = design.viewportTransform[4];
+    var shiftY = design.viewportTransform[5]; 
     ev.e.preventDefault();
     var src = ev.e.dataTransfer.getData("src");
     var offsetX = ev.e.dataTransfer.getData("x");
     var offsetY = ev.e.dataTransfer.getData("y");
-    var x = ev.e.offsetX - offsetX;
-    var y = ev.e.offsetY - offsetY;
+    var x = ev.e.offsetX - offsetX - shiftX;
+    var y = ev.e.offsetY - offsetY - shiftY;
     addImage(src, x / zoom, y / zoom);
   });
 });
@@ -501,6 +504,32 @@ function placeTextboxPoint(obj, x, y) {
   obj.pointY = y - obj.top;
   design.renderAll();
 }
+
+function startPan(event) {
+    if (event.button != 2) {
+        return;
+    }
+    var x0 = event.screenX,
+        y0 = event.screenY;
+
+    function continuePan(event) {
+        var x = event.screenX,
+            y = event.screenY;
+        design.relativePan({
+            x: x - x0,
+            y: y - y0
+        });
+        x0 = x;
+        y0 = y;
+    }
+
+    function stopPan(event) {
+      window.removeEventListener('mousemove', continuePan);
+      window.removeEventListener('mouseup', stopPan);
+    };
+    window.addEventListener('mousemove', continuePan);
+    window.addEventListener('mouseup', stopPan);
+};
 
 
 /*customize textbox*/
