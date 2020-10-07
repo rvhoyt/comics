@@ -91,16 +91,7 @@ document.addEventListener("DOMContentLoaded", function(){
   document.addEventListener('keydown', function(e) {
     if ((e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT') && (e.which === 8 || e.which === 46)) {
       e.preventDefault();
-      var obj = design.getActiveObject();
-      if (obj && obj._objects) {
-        obj._objects.forEach(function(el) {
-          design.remove(el);
-        });
-      } else if (obj) {
-        design.remove(obj);
-      }
-      design.discardActiveObject();
-      design.renderAll();
+      deleteElements();
     } else if (e.which === 67 && e.ctrlKey) {
       copyElement();
     } else if (e.which === 86 && e.ctrlKey && (e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT')) {
@@ -263,6 +254,19 @@ function clipElements() {
   var g = design.getActiveObject()._objects;
   g[1].clipPath = g[0];
   design.requestRenderAll();
+}
+
+function deleteElements() {
+  var obj = design.getActiveObject();
+  if (obj && obj._objects) {
+    obj._objects.forEach(function(el) {
+      design.remove(el);
+    });
+  } else if (obj) {
+    design.remove(obj);
+  }
+  design.discardActiveObject();
+  design.renderAll();
 }
 
 function groupElements() {
