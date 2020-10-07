@@ -66,3 +66,6 @@ Route::post('/strips/{id}/comment', function(Request $request, $id) {
 Route::get('/comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'delete']);
 
 Route::post('/comment/{id}', [App\Http\Controllers\CommentController::class, 'edit']);
+
+//Route::get('/user/{id}', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+Route::get('/user/{id}/{page?}', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');

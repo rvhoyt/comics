@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Strip;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class HomeController extends Controller
+class ProfileController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -23,10 +24,11 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index($page = 1)
+    public function index($id, $page = 1)
     {
-      
-        $count = DB::table('strips')->count();
+        $user = User::find($id);
+        
+        $count = DB::table('strips')->where('user', 1)->count();
         
         $offset = ((int)$page - 1) * 12;
         
@@ -35,15 +37,13 @@ class HomeController extends Controller
           $nextPage = $page + 1;
         }
         
-        $strips = Strip::orderBy('created_at', 'desc')
-            ->offset($offset)
-            ->take(12)
-            ->get();
+        $strips = DB::table('strips')->where('user', (int)$id)->offset($offset)->limit(12)->get();
         
-        return view('home', [
+        return view('profile', [
+          'user' => $user,
           'strips' => $strips,
           'nextPage' => $nextPage,
           'currentPage' => $page
-        ]);
+          ]);
     }
 }

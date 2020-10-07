@@ -15,10 +15,6 @@ class Comment extends Model
       'strip_id'
     ];
     
-    public function strip() {
-      return $this->belongsTo('App\Models\Strip');
-    }
-    
     public function user() {
       return $this->belongsTo('App\Models\User');
     }
