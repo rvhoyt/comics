@@ -243,6 +243,7 @@ function saveImage() {
   design.absolutePan({x:0, y:0});
   design.discardActiveObject().renderAll();
   var hiddenCanvas = document.getElementById('hiddenCanvas');
+  hiddenCanvas.style.display = 'block';
   hiddenCanvas.width = canvasWidth;
   hiddenCanvas.height = canvasHeight;
   var copy = design.toCanvasElement(1, {

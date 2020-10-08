@@ -84,7 +84,6 @@
         <button type="button" onclick="saveImage()">Save Image</button>
       </div>
     </div>
-    <canvas id="hiddenCanvas"></canvas>
     
 <div class="container">
     <br/>
@@ -105,7 +104,15 @@
         <button disabled="disabled" id="submit-button" type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
+    
+    <div class="col-sm-12 card">
+      <div class="card-body">
+        <canvas id="hiddenCanvas"></canvas>
+      </div>
+    </div>
+
 </div>
+
 
 @endsection
 
