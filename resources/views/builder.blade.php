@@ -1,15 +1,18 @@
 @extends('layouts.app')
 @section('content')
 <div class="tabbed-area">
+
   <input type="radio" name="tabs" id="tab1" checked />
   <input type="radio" name="tabs" id="tab2" />
   <input type="radio" name="tabs" id="tab3" />
   <input type="radio" name="tabs" id="tab4" />
+  <input type="radio" name="tabs" id="tab5" />
   
   <label class="btn btn-outline-secondary" for="tab1">Items</label>
   <label class="btn btn-outline-secondary" for="tab2">Shapes</label>
   <label class="btn btn-outline-secondary" for="tab3">Characters</label>
   <label class="btn btn-outline-secondary" for="tab4">Pieces</label>
+  <label class="btn btn-outline-secondary" for="tab5">Library</label>
   
   <div class="drawer">
     <?php
@@ -25,10 +28,11 @@
           if ($file === '.' || $file === '..') {
             continue;
           }
+          $filename = 'shapes/' . $folder . '/' . $file;
           $img = file_get_contents('shapes/' . $folder . '/' . $file);
           $img = 'data:image/svg+xml;base64,' . base64_encode($img);
           ?>
-          <div draggable="true" ondragstart="drag(event)" data-src="<?php echo $img;?>" class="draggableImage">
+          <div draggable="true" ondragstart="drag(event)" data-file="<?php echo $filename;?>" data-src="<?php echo $img;?>" class="draggableImage">
           </div>
           <?php
         }
@@ -36,7 +40,8 @@
         </div>
         <?php
       }
-    ?> 
+    ?>
+    <div class="drawer-container" id="drawer-library">WIP</div>
   </div>
 </div>
     <div class="canvas-container">
@@ -47,7 +52,8 @@
         <button type="button" onclick="setCanvas(682, 1050)">Canvas Full Page</button>
         <br/><br/>
         <button type="button" onclick="groupElements()">Group</button>
-        <button type="button" onclick="ungroupElements()">Ungroup</button>
+        <button id="ungroup-btn" type="button" onclick="ungroupElements()" disabled="disabled">Ungroup</button>
+        <button id="saveGroup-btn" type="button" onclick="saveGroupElements()" disabled="disabled">Save to Library</button>
         <br/><br/>
         <label>Blur: <input id="blurSlider" value="0" min="0" max="3" step="0.01" type="range" onchange="blurElement(this.value)"/></label>
         <br/><br/>

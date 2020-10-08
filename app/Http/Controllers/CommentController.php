@@ -30,6 +30,20 @@ class CommentController extends Controller
         return view('strip', ['strip' => $strip]);
     }
     
+    public function save(Request $request, $id) {
+      $this->middleware('auth');
+      $data = $request->validate([
+          'comment' => 'required|max:1000',
+      ]);
+      
+      $data['user_id'] = $request->user()->id;
+      $data['strip_id'] = $id;
+      
+      tap(new App\Models\Comment($data))->save();
+      
+      return redirect('/strips/' . $id);
+    }
+    
     public function delete(Request $request, $id) {
       $this->middleware('auth');
       $comment = Comment::find($id);

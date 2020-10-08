@@ -19,7 +19,7 @@ class CreateStripsTable extends Migration
             $table->string('title');
             $table->string('url')->unique();
             $table->text('description');
-            $table->integer('user');
+            $table->foreignId('user');
         });
     }
 

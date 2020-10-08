@@ -10916,9 +10916,19 @@ a.text-dark:focus {
     margin: 10px;
     overflow: hidden;
     max-height: 100px;
+    position:relative;
   }
   .draggableImage img{
     height: 100%
+  }
+  .library-del{
+    position: absolute;
+    bottom:0;
+    right: 0;
+    display:none;
+  }
+  .draggableImage:hover .library-del{
+    display:inline-block;
   }
   #hiddenCanvas{
     display:none;
@@ -10956,12 +10966,14 @@ a.text-dark:focus {
 #tab1:checked ~ .drawer #drawer-items,
 #tab2:checked ~ .drawer #drawer-shapes,
 #tab3:checked ~ .drawer #drawer-characters,
-#tab4:checked ~ .drawer #drawer-pieces { display: block; }
+#tab4:checked ~ .drawer #drawer-pieces,
+#tab5:checked ~ .drawer #drawer-library { display: block; }
 
 #tab1:checked ~ label[for=tab1],
 #tab2:checked ~ label[for=tab2],
 #tab3:checked ~ label[for=tab3],
-#tab4:checked ~ label[for=tab4] {
+#tab4:checked ~ label[for=tab4],
+#tab5:checked ~ label[for=tab5] {
   color: #fff;
   background-color: #6c757d;
   border-color: #6c757d;

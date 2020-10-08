@@ -50,22 +50,14 @@ Route::post('/builder', function (Request $request) {
 
 Route::get('/strips/{id}', [App\Http\Controllers\StripController::class, 'index'])->name('strip');
 
-Route::post('/strips/{id}/comment', function(Request $request, $id) {
-  $data = $request->validate([
-      'comment' => 'required|max:1000',
-  ]);
-  
-  $data['user_id'] = $request->user()->id;
-  $data['strip_id'] = $id;
-  
-  tap(new App\Models\Comment($data))->save();
-  
-  return redirect('/strips/' . $id);
-});
+Route::post('/strips/{id}/comment', [App\Http\Controllers\CommentController::class, 'save']);
 
 Route::get('/comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'delete']);
 
 Route::post('/comment/{id}', [App\Http\Controllers\CommentController::class, 'edit']);
 
-//Route::get('/user/{id}', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
 Route::get('/user/{id}/{page?}', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+
+Route::get('/library',  [App\Http\Controllers\LibraryController::class, 'index']);
+Route::post('/library', [App\Http\Controllers\LibraryController::class, 'save']);
+Route::get('/library/{id}/delete', [App\Http\Controllers\LibraryController::class, 'delete']);

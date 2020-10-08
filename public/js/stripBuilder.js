@@ -49,6 +49,14 @@ document.addEventListener("DOMContentLoaded", function(){
     } else {
       document.getElementById('textEditor').classList.remove('show');
     }
+    
+    if (objs.length === 1 && objs[0].type === 'group') {
+      document.getElementById('ungroup-btn').disabled = false;
+      document.getElementById('saveGroup-btn').disabled = false;
+    } else {
+      document.getElementById('ungroup-btn').disabled = true;
+      document.getElementById('saveGroup-btn').disabled = true;
+    }
   });
 
   // hook up the pan and zoom
@@ -126,11 +134,20 @@ document.addEventListener("DOMContentLoaded", function(){
     var shiftY = design.viewportTransform[5]; 
     ev.e.preventDefault();
     var src = ev.e.dataTransfer.getData("src");
+    var library = ev.e.dataTransfer.getData("library");
     var offsetX = ev.e.dataTransfer.getData("x");
     var offsetY = ev.e.dataTransfer.getData("y");
     var x = ev.e.offsetX - offsetX - shiftX;
     var y = ev.e.offsetY - offsetY - shiftY;
-    addImage(src, x / zoom, y / zoom);
+    if (library && libraryElements[library]) {
+      src = libraryElements[library].clone(function(clone) {
+        clone.top = y / zoom;
+        clone.left = x / zoom;
+        design.add(clone);
+      }, ['blur', 'invert', 'perPixelTargetFind']);
+    } else {
+      addImage(src, x / zoom, y / zoom);
+    }
   });
 });
 
@@ -141,10 +158,55 @@ document.addEventListener("DOMContentLoaded", function(){
 
 var images = document.querySelectorAll('.draggableImage');
 
+var imgSrcs = [];
 /*convert all svg xml into images*/
 [].forEach.call(images, function(div) {
   var src = div.dataset.src;
+  var file = div.dataset.file;
+  imgSrcs.push({src: src, file: file});
   div.innerHTML = '<img src="' + src + '"/>';
+});
+
+var libraryElements;
+
+function updateLibrary (data) {
+  function replaceSrc(data) {
+    data.objects.map(function(obj) {
+      if (obj.type === 'image') {
+        var img = imgSrcs.find(src => src.file === obj.src);
+        obj.src = img.src;
+      } else if (obj.type === 'group') {
+        obj = replaceSrc(obj);
+      }
+    });
+    return data;
+  }
+  var ids = [];
+  data = data.map(function(obj) {
+    ids.push(obj.id);
+    var obj = JSON.parse(obj.data);
+    obj = replaceSrc(obj);
+    return obj;
+  });
+  console.log(data);
+  fabric.util.enlivenObjects(data, function(objects) {
+    libraryElements = objects;
+    var drawer = document.getElementById('drawer-library');
+    var html = '';
+    objects.forEach(function(obj, i) {
+      var img = obj.toDataURL();
+      html += '<div class="draggableImage" draggable="true" ondragstart="drag(event)"><img data-library="' + i + '" src="' + img + '"/><button type="button" class="library-del btn btn-sm btn-danger" onclick="deleteLibrary(' + ids[i] + ')">X</button></div>';
+    })
+    drawer.innerHTML = html;
+  });
+}
+
+fetch('/library').then(function (response) {
+  return response.ok ? response.json() : Promise.reject(response);
+})
+.then(updateLibrary)
+.catch(function (err) {
+  console.warn('Something went wrong.', err);
 });
 
 fabric.Object.prototype.objectCaching = false;
@@ -202,6 +264,7 @@ function drag(ev) {
   var x = ev.offsetX;
   var y = ev.offsetY;
   ev.dataTransfer.setData("src", ev.target.src);
+  ev.dataTransfer.setData("library", ev.target.dataset.library);
   ev.dataTransfer.setData("x", x);
   ev.dataTransfer.setData("y", y);
 } 
@@ -257,15 +320,9 @@ function clipElements() {
 }
 
 function deleteElements() {
-  var obj = design.getActiveObject();
-  if (obj && obj._objects) {
-    obj._objects.forEach(function(el) {
-      design.remove(el);
-    });
-  } else if (obj) {
-    design.remove(obj);
-  }
+  var activeObject = design.getActiveObjects();
   design.discardActiveObject();
+  design.remove(...activeObject);
   design.renderAll();
 }
 
@@ -278,6 +335,8 @@ function groupElements() {
   }
   var g = design.getActiveObject().toGroup();
   design.requestRenderAll();
+  document.getElementById('ungroup-btn').disabled = false;
+  document.getElementById('saveGroup-btn').disabled = false;
 }
 
 function ungroupElements() {
@@ -289,6 +348,59 @@ function ungroupElements() {
   }
   design.getActiveObject().toActiveSelection();
   design.requestRenderAll();
+  document.getElementById('ungroup-btn').disabled = true;
+  document.getElementById('saveGroup-btn').disabled = true;
+}
+
+function saveGroupElements() {
+  if (!design.getActiveObject()) {
+    return;
+  }
+  if (design.getActiveObject().type !== 'group') {
+    return;
+  }
+  var group = design.getActiveObject();
+  var data = group.toDatalessObject(['blur','invert']);
+  function replaceSrc(data) {
+    data.objects.map(function(obj) {
+      if (obj.type === 'image') {
+        var img = imgSrcs.find(src => src.src === obj.src);
+        obj.src = img.file;
+      } else if (obj.type === 'group') {
+        obj = replaceSrc(obj);
+      }
+    });
+    return data;
+  }
+  data = replaceSrc(data);
+  data = JSON.stringify(data);
+  var payload = {
+    data: data
+  }
+  
+  fetch('/library', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+      'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').attributes.content.value
+    }
+  }).then(function (response) {
+    return response.ok ? response.json() : Promise.reject(response);
+  }).then(updateLibrary).catch(function (err) {
+    console.warn('Something went wrong.', err);
+  });
+}
+
+function deleteLibrary(id) {
+  var check = confirm('Are you sure you want to delete this library element?');
+  if (!check) {
+    return;
+  }
+  fetch('/library/' + id + '/delete').then(function (response) {
+    return response.ok ? response.json() : Promise.reject(response);
+  }).then(updateLibrary).catch(function (err) {
+    console.warn('Something went wrong.', err);
+  });
 }
 
 function blurElement(value, obj) {
@@ -454,21 +566,10 @@ function pasteElement() {
       invert: _clipboard.invert
     });
     var objs = [];
-    function processGroup(newObj, oldObj) {
-      if (newObj.type === 'group') {
-        newObj.forEachObject(function(obj, i) {
-          obj.blur = oldObj._objects[i].blur;
-          obj.invert = oldObj._objects[i].invert;
-          newObj[i] = processGroup(obj, oldObj._objects[i]);
-        });
-      }
-      return newObj;
-    }
     if (clonedObj.type === 'activeSelection') {
       // active selection needs a reference to the canvas.
       clonedObj.design = design;
       clonedObj.forEachObject(function(obj, i) {
-        obj = processGroup(obj, _clipboard._objects[0]);
         obj.set({
           top: obj.top + top,
           left: obj.left + left,
@@ -479,7 +580,6 @@ function pasteElement() {
         design.add(obj);
       });
     } else {
-      clonedObj = processGroup(clonedObj, _clipboard);
       objs.push(clonedObj);
       design.add(clonedObj);
     }
@@ -491,7 +591,7 @@ function pasteElement() {
     design.discardActiveObject();
     design.setActiveObject(sel);
     design.renderAll();
-  });
+  }, ['blur', 'invert', 'perPixelTargetFind']);
 }
 
 function startPlaceTextboxPoint() {
