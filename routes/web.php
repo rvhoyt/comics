@@ -27,7 +27,7 @@ Route::post('/builder', function (Request $request) {
     $data = $request->validate([
         'title' => 'required|max:255',
         'url' => 'required',
-        'description' => 'required|max:255',
+        'description' => 'required',
     ]);
     
     require_once '../app/helpers.php';
