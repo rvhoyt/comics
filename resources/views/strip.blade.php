@@ -39,7 +39,7 @@
                 <textarea class="form-control" name="comment">{{$comment->comment}}</textarea>
                 <button class="btn btn-primary">Save</button>
               </form>
-              @if (auth()->user()->id === $comment->user_id)
+              @if (auth() && auth()->user()->id === $comment->user_id)
                 <div>
                   <a href="/comment/{{$comment->id}}/delete" class="float-right btn btn-danger btn-small">Delete</a>
                   <button type="button" class="float-right btn btn-secondary btn-small edit-comment">Edit</button>
