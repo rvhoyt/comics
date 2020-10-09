@@ -76,25 +76,13 @@ document.addEventListener("DOMContentLoaded", function(){
       placeTextboxPoint(this.placingPoint, evt.layerX, evt.layerY);
       this.placingPoint = false;
     }
-    if (evt.altKey === true) {
-      this.isDragging = true;
-      this.selection = false;
-      this.lastPosX = evt.clientX;
-      this.lastPosY = evt.clientY;
-    }
   });
-  design.on('mouse:move', function(opt) {
-    if (this.isDragging) {
-      var e = opt.e;
-      this.requestRenderAll();
-      this.lastPosX = e.clientX;
-      this.lastPosY = e.clientY;
-    }
+  /*design.on('mouse:move', function(opt) {
+    
   });
   design.on('mouse:up', function(opt) {
-    this.isDragging = false;
-    this.selection = true;
-  });
+    
+  });*/
 
   document.addEventListener('keydown', function(e) {
     if ((e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT') && (e.which === 8 || e.which === 46)) {
@@ -188,7 +176,6 @@ function updateLibrary (data) {
     obj = replaceSrc(obj);
     return obj;
   });
-  console.log(data);
   fabric.util.enlivenObjects(data, function(objects) {
     libraryElements = objects;
     var drawer = document.getElementById('drawer-library');
@@ -413,12 +400,14 @@ function blurElement(value, obj) {
   }
   if (obj.type === 'textbox') {
     obj.blur = value * 10;
+    obj.dirty = true;
   } else if (obj.type === 'activeSelection' || obj.type === 'group') {
     obj.forEachObject(function(el){
       blurElement(value, el);
     });
   } else {
     obj.blur = value;
+    obj.dirty = true;
   }
   if (one) {
     design.renderAll();
@@ -689,14 +678,17 @@ fabric.Textbox.prototype._render = function(ctx) {
   ctx.filter = 'none';
 }
 
-var originalImageRender = fabric.Image.prototype._render;
-fabric.Image.prototype._render = function(ctx) {
-  ctx.filter = 'blur(' + (this.blur * 10) + 'px)';
-  ctx.filter += 'invert(' + this.invert + ')';
+var originalRenderCache = fabric.Object.prototype.renderCache;
+fabric.Image.prototype.renderCache = function() {
+  if (this._cacheCanvas && this.dirty) {
+    this._cacheContext.filter = 'blur(' + (this.blur * 10) + 'px)';
+    this._cacheContext.filter += 'invert(' + this.invert + ')';
+  }
   
-  originalImageRender.call(this, ctx);
-  ctx.filter = 'none';
+  originalRenderCache.call(this);
 }
 
-fabric.Object.prototype.objectCaching = true;
-fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat('active');
+fabric.Image.prototype.needsItsOwnCache = function() {return true};
+
+fabric.Object.prototype.stateProperties = fabric.Object.prototype.stateProperties.concat(['active', 'blur', 'invert']);
+fabric.Object.prototype.cacheProperties = fabric.Object.prototype.cacheProperties.concat(['active', 'blur', 'invert']);
