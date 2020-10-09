@@ -39,7 +39,7 @@ class CommentController extends Controller
       $data['user_id'] = $request->user()->id;
       $data['strip_id'] = $id;
       
-      tap(new App\Models\Comment($data))->save();
+      tap(new Comment($data))->save();
       
       return redirect('/strips/' . $id);
     }
