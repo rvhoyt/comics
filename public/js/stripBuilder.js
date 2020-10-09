@@ -442,7 +442,8 @@ function opacityElement(value, obj) {
   if (!obj) {
     obj = design.getActiveObject();
   }
-  if (obj.type === 'activeSelection' || obj.type === 'group') {
+  console.log(obj.type);
+  if (obj.type === 'activeSelection') {
     obj._objects.forEach(function(el){
       opacityElement(value, el);
     });
