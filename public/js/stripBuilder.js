@@ -430,6 +430,7 @@ function invertElement(obj) {
     });
   } else {
     obj.invert = obj.invert ? 0 : 1;
+    obj.dirty = true;
   }
   if (one) {
     fabric.Object.prototype.objectCaching = false;
