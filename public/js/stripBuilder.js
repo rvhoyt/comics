@@ -648,7 +648,9 @@ function pasteElement() {
       clonedObj.forEachObject(function(obj, i) {
         obj.set({
           top: obj.top + top,
-          left: obj.left + left
+          left: obj.left + left,
+          blur: _clipboard._objects[i].blur,
+          invert: _clipboard._objects[i].invert
         });
         if (obj.isMasked) {
           obj.shouldCache = function() {return true};
@@ -657,6 +659,8 @@ function pasteElement() {
         design.add(obj);
       });
     } else {
+      clonedObj.blur = _clipboard.blur;
+      clonedObj.invert = _clipboard.invert;
       clonedObj = handleMasks(clonedObj);
       objs.push(clonedObj);
       design.add(clonedObj);
