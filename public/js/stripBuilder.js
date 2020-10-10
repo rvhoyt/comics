@@ -28,10 +28,10 @@ document.addEventListener("DOMContentLoaded", function(){
 
   design.on('selection:created', function(event) {
     var objs = event.selected;
-    var blurValue = objs.map((a) => {if(a.type === 'image'){return a.blur}}).reduce((a, b) => (a + b)) / objs.length;
+    var blurValue = objs.map((a) => a.blur).reduce((a, b) => (a + b)) / objs.length;
     document.getElementById('blurSlider').value = blurValue;
     
-    var opacityValue = objs.map((a) => {if(a.type === 'image'){return a.opacity}}).reduce((a, b) => (a + b)) / objs.length;
+    var opacityValue = objs.map((a) => a.opacity).reduce((a, b) => (a + b)) / objs.length;
     document.getElementById('opacitySlider').value = opacityValue;
     
     var hasText = objs.some((el) => el.type === 'textbox');
