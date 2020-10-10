@@ -51,8 +51,13 @@
         <button type="button" onclick="setCanvas(682, 530)">Canvas Half Page</button>
         <button type="button" onclick="setCanvas(682, 1050)">Canvas Full Page</button>
         <br/><br/>
-        <button type="button" onclick="groupElements()">Group</button>
+        <button id="group-btn" type="button" onclick="groupElements()" disabled="disabled">Group</button>
         <button id="ungroup-btn" type="button" onclick="ungroupElements()" disabled="disabled">Ungroup</button>
+        <br/></br>
+        <button id="mask-btn" type="button" onclick="maskElements()" disabled="disabled">Mask</button>
+        <button id="flip-mask-btn" type="button" onclick="flipMask()" disabled="disabled">Flip Mask</button>
+        <button id="unmask-btn" type="button" onclick="unmaskElements()" disabled="disabled">Unmask</button>
+        <br/></br>
         <button id="saveGroup-btn" type="button" onclick="saveGroupElements()" disabled="disabled">Save to Library</button>
         <br/><br/>
         <label>Blur: <input id="blurSlider" value="0" min="0" max="3" step="0.01" type="range" onchange="blurElement(this.value)"/></label>
@@ -117,7 +122,7 @@
 @endsection
 
 @section('myjsfile')
-  <script src="https://strips-data.s3.eu-central-003.backblazeb2.com/lodash.js"></script>
-  <script src="https://strips-data.s3.eu-central-003.backblazeb2.com/fabric.min.js"></script>
+  <script src="js/lodash.js"></script>
+  <script src="js/fabric.min.js"></script>
   <script src="js/stripBuilder.js"></script>
 @stop
