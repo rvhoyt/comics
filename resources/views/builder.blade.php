@@ -64,6 +64,7 @@
         <br/><br/>
         <label>Opacity: <input id="opacitySlider" value="1" min="0" max="1" step="0.01" type="range" onchange="opacityElement(this.value)"/></label>
         <br/><br/>
+        <button type="button" onclick="duplicateElement()">Duplicate</button>
         <button type="button" onclick="deleteElements()">Delete</button>
         <button type="button" onclick="invertElement()">Invert</button>
         <br/><br/>

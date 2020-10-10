@@ -591,15 +591,23 @@ function unmaskElements() {
   ungroupElements();
   design.renderAll();
 }
-  
+
+function duplicateElement() {
+  copyElement();
+  setTimeout(pasteElement, 50);
+}
+
 function copyElement() {
   var active = design.getActiveObject();
-  design.getActiveObject().clone(function(cloned) {
+  return design.getActiveObject().clone(function(cloned) {
     _clipboard = cloned;
   }, ['invert', 'blur', 'perPixelTargetFind']);
 }
 
 function pasteElement() {
+  if (!_clipboard) {
+    return;
+  }
   // clone again, so you can do multiple copies.
   _clipboard.clone(function(clonedObj) {
     var left = clonedObj.left + 10;
