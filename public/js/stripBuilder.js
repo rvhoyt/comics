@@ -346,11 +346,19 @@ function groupElements() {
   g.perPixelTargetFind = true;
   g.blur = 0;
   g.invert = 0;
-  g.forEachObject(function(obj) {
+  function handleMasks (obj) {
+    console.log(obj.isMasked);
     if (obj.isMasked) {
       obj.shouldCache = function() {return true};
     }
-  });
+    if (obj.type === 'group') {
+      obj.forEachObject(function(o) {
+        handleMasks(o);
+      });
+    }
+    return obj;
+  }
+  g = handleMasks(g);
   design.requestRenderAll();
   document.getElementById('ungroup-btn').disabled = false;
   document.getElementById('saveGroup-btn').disabled = false;
@@ -619,26 +627,37 @@ function pasteElement() {
     clonedObj.set({
       left: clonedObj.left + 10,
       top: clonedObj.top + 10,
-      evented: true,
-      perPixelTargetFind: true,
-      blur: _clipboard.blur,
-      invert: _clipboard.invert
+      evented: true
     });
     var objs = [];
+    function handleMasks (obj) {
+      if (obj.isMasked) {
+        obj.shouldCache = function() {return true};
+      }
+      if (obj.type === 'group') {
+        obj.forEachObject(function(o) {
+          handleMasks(o);
+        });
+      }
+      return obj;
+    }
     if (clonedObj.type === 'activeSelection') {
       // active selection needs a reference to the canvas.
       clonedObj.design = design;
+      clonedObj = handleMasks(clonedObj);
       clonedObj.forEachObject(function(obj, i) {
         obj.set({
           top: obj.top + top,
-          left: obj.left + left,
-          blur: _clipboard._objects[i].blur,
-          invert: _clipboard._objects[i].invert
+          left: obj.left + left
         });
+        if (obj.isMasked) {
+          obj.shouldCache = function() {return true};
+        }
         objs.push(obj);
         design.add(obj);
       });
     } else {
+      clonedObj = handleMasks(clonedObj);
       objs.push(clonedObj);
       design.add(clonedObj);
     }
