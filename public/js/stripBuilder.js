@@ -151,7 +151,6 @@ document.addEventListener("DOMContentLoaded", function(){
     var y = ev.e.offsetY - offsetY - shiftY;
     if (library && libraryElements[library]) {
       src = libraryElements[library].clone(function(clone) {
-        console.log(clone);
         clone.top = y / zoom;
         clone.left = x / zoom;
         design.add(clone);
@@ -336,16 +335,22 @@ function deleteElements() {
 }
 
 function groupElements() {
-  if (!design.getActiveObject()) {
+  var active = design.getActiveObject();
+  if (!active) {
     return;
   }
-  if (design.getActiveObject().type !== 'activeSelection') {
+  if (active.type !== 'activeSelection') {
     return;
   }
-  var g = design.getActiveObject().toGroup();
+  var g = active.toGroup();
   g.perPixelTargetFind = true;
   g.blur = 0;
   g.invert = 0;
+  g.forEachObject(function(obj) {
+    if (obj.isMasked) {
+      obj.shouldCache = function() {return true};
+    }
+  });
   design.requestRenderAll();
   document.getElementById('ungroup-btn').disabled = false;
   document.getElementById('saveGroup-btn').disabled = false;
@@ -582,7 +587,6 @@ function flipMask() {
 
 function unmaskElements() {
   var active = design.getActiveObject();
-  console.log(!active.isMasked);
   if (!active || !active.isMasked) {
     return;
   }
@@ -601,7 +605,7 @@ function copyElement() {
   var active = design.getActiveObject();
   return design.getActiveObject().clone(function(cloned) {
     _clipboard = cloned;
-  }, ['invert', 'blur', 'perPixelTargetFind']);
+  }, ['invert', 'blur', 'perPixelTargetFind', 'isMasked']);
 }
 
 function pasteElement() {
@@ -646,7 +650,7 @@ function pasteElement() {
     design.discardActiveObject();
     design.setActiveObject(sel);
     design.renderAll();
-  }, ['blur', 'invert', 'perPixelTargetFind']);
+  }, ['blur', 'invert', 'perPixelTargetFind', 'isMasked']);
 }
 
 function startPlaceTextboxPoint() {
@@ -765,5 +769,5 @@ fabric.Group.prototype.renderCache = function() {
 
 fabric.Image.prototype.needsItsOwnCache = function() {return true};
 
-fabric.Object.prototype.stateProperties = fabric.Object.prototype.stateProperties.concat(['active', 'blur', 'invert']);
-fabric.Object.prototype.cacheProperties = fabric.Object.prototype.cacheProperties.concat(['active', 'blur', 'invert']);
+fabric.Object.prototype.stateProperties = fabric.Object.prototype.stateProperties.concat(['active', 'blur', 'invert', 'isMasked']);
+fabric.Object.prototype.cacheProperties = fabric.Object.prototype.cacheProperties.concat(['active', 'blur', 'invert', 'isMasked']);
