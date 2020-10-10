@@ -17,15 +17,15 @@ use App\Models\User;
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/page/{id}', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('page/{id}', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/builder', [App\Http\Controllers\BuilderController::class, 'index'])->name('builder');
+Route::get('builder', [App\Http\Controllers\BuilderController::class, 'index'])->name('builder');
 
-Route::post('/builder', function (Request $request) {
+Route::post('builder', function (Request $request) {
     $data = $request->validate([
         'title' => 'required|max:255',
         'url' => 'required',
@@ -50,16 +50,16 @@ Route::post('/builder', function (Request $request) {
     return redirect('/');
 });
 
-Route::get('/strips/{id}', [App\Http\Controllers\StripController::class, 'index'])->name('strip');
+Route::get('strips/{id}', [App\Http\Controllers\StripController::class, 'index'])->name('strip');
 
-Route::post('/strips/{id}/comment', [App\Http\Controllers\CommentController::class, 'save']);
+Route::post('strips/{id}/comment', [App\Http\Controllers\CommentController::class, 'save']);
 
-Route::get('/comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'delete']);
+Route::get('comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'delete']);
 
-Route::post('/comment/{id}', [App\Http\Controllers\CommentController::class, 'edit']);
+Route::post('comment/{id}', [App\Http\Controllers\CommentController::class, 'edit']);
 
-Route::get('/user/{id}/{page?}', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+Route::get('user/{id}/{page?}', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
 
-Route::get('/library',  [App\Http\Controllers\LibraryController::class, 'index']);
-Route::post('/library', [App\Http\Controllers\LibraryController::class, 'save']);
-Route::get('/library/{id}/delete', [App\Http\Controllers\LibraryController::class, 'delete']);
+Route::get('library',  [App\Http\Controllers\LibraryController::class, 'index']);
+Route::post('library', [App\Http\Controllers\LibraryController::class, 'save']);
+Route::get('library/{id}/delete', [App\Http\Controllers\LibraryController::class, 'delete']);
