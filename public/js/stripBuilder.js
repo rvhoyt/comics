@@ -347,7 +347,6 @@ function groupElements() {
   g.blur = 0;
   g.invert = 0;
   function handleMasks (obj) {
-    console.log(obj.isMasked);
     if (obj.isMasked) {
       obj.shouldCache = function() {return true};
     }
@@ -630,13 +629,13 @@ function pasteElement() {
       evented: true
     });
     var objs = [];
-    function handleMasks (obj) {
+    function recursiveSet (obj, old) {
       if (obj.isMasked) {
         obj.shouldCache = function() {return true};
       }
       if (obj.type === 'group') {
-        obj.forEachObject(function(o) {
-          handleMasks(o);
+        obj.forEachObject(function(o, i) {
+          recursiveSet(o, old._objects[i]);
         });
       }
       return obj;
@@ -644,24 +643,13 @@ function pasteElement() {
     if (clonedObj.type === 'activeSelection') {
       // active selection needs a reference to the canvas.
       clonedObj.design = design;
-      clonedObj = handleMasks(clonedObj);
+      clonedObj = recursiveSet(clonedObj, _clipboard);
       clonedObj.forEachObject(function(obj, i) {
-        obj.set({
-          top: obj.top + top,
-          left: obj.left + left,
-          blur: _clipboard._objects[i].blur,
-          invert: _clipboard._objects[i].invert
-        });
-        if (obj.isMasked) {
-          obj.shouldCache = function() {return true};
-        }
         objs.push(obj);
         design.add(obj);
       });
     } else {
-      clonedObj.blur = _clipboard.blur;
-      clonedObj.invert = _clipboard.invert;
-      clonedObj = handleMasks(clonedObj);
+      clonedObj = recursiveSet(clonedObj, _clipboard);
       objs.push(clonedObj);
       design.add(clonedObj);
     }
@@ -672,7 +660,17 @@ function pasteElement() {
     });
     design.discardActiveObject();
     design.setActiveObject(sel);
-    design.renderAll();
+    function recursiveDirty(obj) {
+      obj.dirty = true;
+      if (obj.type === 'group' || obj.type === 'activeSelection') {
+        obj.forEachObject(recursiveDirty);
+      }
+      return obj;
+    }
+    setTimeout(function() {
+      recursiveDirty(sel);
+      design.renderAll();
+    }, 30);
   }, ['blur', 'invert', 'perPixelTargetFind', 'isMasked']);
 }
 
