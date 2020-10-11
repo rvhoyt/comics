@@ -749,13 +749,27 @@ fabric.Textbox.prototype._render = function(ctx) {
 
 var originalRenderCache = fabric.Object.prototype.renderCache;
 fabric.Image.prototype.renderCache = function() {
+  var filter = 'blur(' + (this.blur * 10) + 'px)' +
+    'invert(' + this.invert + ')';
   if (this._cacheCanvas && this.dirty) {
-    this._cacheContext.filter = 'blur(' + (this.blur * 10) + 'px)';
-    this._cacheContext.filter += 'invert(' + this.invert + ')';
+    this._cacheContext.filter = filter;
   }
   
   originalRenderCache.call(this);
 }
+
+var _updateCacheCanvas = fabric.Image.prototype._updateCacheCanvas;
+fabric.Image.prototype._updateCacheCanvas = function() {
+  var filter = 'blur(' + (this.blur * 10) + 'px)' +
+    'invert(' + this.invert + ')';
+  var oldVal = this.zoomX ;
+  var returnVal = _updateCacheCanvas.call(this);
+  var newVal = this.zoomX;
+  if (oldVal !== newVal) {
+    this._cacheContext.filter = filter;
+  }
+  return returnVal;
+};
 
 var originalGroupRenderCache = fabric.Group.prototype.renderCache;
 fabric.Group.prototype.renderCache = function() {
