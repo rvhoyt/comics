@@ -796,60 +796,30 @@ fabric.Textbox.prototype._render = function(ctx) {
     ctx.fillStyle = this.backgroundColor;
     ctx.lineWidth = this.textboxBorderSize;
     ctx.strokeStyle = this.textboxBorderColor;
-    /*text line*/
-    console.log(x);
-    console.log(y);
-    console.log(h);
-    console.log(w);
-    console.log(this.pointX);
-    console.log(this.pointY);
-    if (this.pointY < y || this.pointY > h + y || this.pointX < x || this.poinyX > w + x) {
-      
-      
-      var startX;
-      if (this.pointX < 0) {
-        startX = x + this.radius / 4;
-        if (this.pointY > 0 && this.pointY < h) {
-          startX = x;
-        }
-      } else if (this.pointX < w) {
-        startX = x + w/2;
-      } else {
-        startX = x + w - this.radius/4;
-        if (this.pointY > 0 && this.pointY < h) {
-          startX = x + w;
-        }
-      }
-      
-      var startY;
-      if (this.pointY < 0) {
-        startY = y + this.radius/4;
-        if (this.pointX > 0 && this.pointX < w) {
-          startY = y;
-        }
-      } else if (this.pointY < h) {
-        startY = y + h/2;
-      } else {
-        startY = y + h - this.radius/4;
-        if (this.pointX > 0 && this.pointX < w) {
-          startY = y + h;
-        }
-      }
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      var subX = Math.abs(startX);
-      if (subX === 0) {
-        subX = w/2
-      }
-      var subY = Math.abs(startY);
-      if (subY === 0) {
-        subY = h/2
-      }
-      ctx.lineTo(this.pointX - subX, this.pointY - subY);
-      ctx.stroke();
+    
+    /*textbox line*/
+    /*start in center of box*/
+    var startX = x + w/2;
+    var startY = y + h/2;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    
+    /*calc offset of canvas*/
+    var subX = Math.abs(x);
+    if (subX === 0) {
+      subX = w/2
     }
+    var subY = Math.abs(y);
+    if (subY === 0) {
+      subY = h/2
+    }
+    ctx.lineTo(this.pointX - subX, this.pointY - subY);
+    ctx.stroke();
+    
+    /*draw textbox rectangle*/
     roundRect(ctx, x, y, w, h, this.radius);
   }
+  
   this.backgroundColor = 'transparent';
   originalTextboxRender.call(this, ctx);
 }
