@@ -53,17 +53,17 @@
         <br/><br/>
         <button id="group-btn" type="button" onclick="groupElements()" disabled="disabled">Group</button>
         <button id="ungroup-btn" type="button" onclick="ungroupElements()" disabled="disabled">Ungroup</button>
-        <br/></br>
+        <br/>
         <button id="mask-btn" type="button" onclick="maskElements()" disabled="disabled">Mask</button>
         <button id="flip-mask-btn" type="button" onclick="flipMask()" disabled="disabled">Flip Mask</button>
         <button id="unmask-btn" type="button" onclick="unmaskElements()" disabled="disabled">Unmask</button>
-        <br/></br>
+        <br/>
         <button id="saveGroup-btn" type="button" onclick="saveGroupElements()" disabled="disabled">Save to Library</button>
-        <br/><br/>
+        <br/>
         <label>Blur: <input id="blurSlider" value="0" min="0" max="3" step="0.01" type="range" onchange="blurElement(this.value)"/></label>
-        <br/><br/>
+        <br/>
         <label>Opacity: <input id="opacitySlider" value="1" min="0" max="1" step="0.01" type="range" onchange="opacityElement(this.value)"/></label>
-        <br/><br/>
+        <br/>
         <button type="button" onclick="duplicateElement()">Duplicate</button>
         <button type="button" onclick="deleteElements()">Delete</button>
         <button type="button" onclick="invertElement()">Invert</button>
@@ -84,6 +84,21 @@
           <label>Font Size: <input id="fontSizeSlider" value="12" min="1" max="81" step="1" type="range" onchange="fontSizeElement(this.value)"/></label>
           
           <label>Border Size: <input id="borderSlider" value="12" min="0" max="10" step="1" type="range" onchange="borderElement(this.value)"/></label>
+          
+          <label>Roundness: <input id="radiusSlider" value="0" min="0" max="100" step="1" type="range" onchange="radiusElement(this.value)"/></label>
+          
+          <br/>
+          <button onclick="textAlign('left')" type="button">Left</button>
+          <button onclick="textAlign('center')" type="button">Center</button>
+          <button onclick="textAlign('justify')" type="button">Justify</button>
+          <button onclick="textAlign('right')" type="button">Right</button>
+          
+          <select onchange="fontFamily(this.value)">
+            <option>Arial</option>
+            <option>Comic Sans MS</option>
+            <option>Times New Roman</option>
+            <option selected>Verdana</option>
+          </select>
           
         </div>
         <br/><br/>

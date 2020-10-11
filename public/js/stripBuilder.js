@@ -303,13 +303,22 @@ function addTextbox() {
     fontSize: 12,
     textboxBorderSize: 1,
     textboxBorderColor: 'black',
-    showTextBoxBorder: true,
-    lockScalingY: true,
-    lockScalingX: true,
     backgroundColor: 'white',
     pointX: 50,
     pointY: 50,
-    blur: 0
+    blur: 0,
+    invert: 0,
+    radius: 0,
+    textAlign: 'center',
+    fontFamily: 'Verdana'
+  });
+  textbox.setControlsVisibility({
+    mt: false,
+    mb: false,
+    bl: false,
+    br: false,
+    tl: false,
+    tr: false,
   });
   design.add(textbox);
 }
@@ -458,9 +467,6 @@ function invertElement(obj) {
     one = true;
     obj = design.getActiveObject();
   }
-  if (obj.type === 'textbox') {
-    return;
-  }
   if (obj.type === 'activeSelection') {
     obj.forEachObject(function(el){
       invertElement(el);
@@ -496,8 +502,9 @@ function fontSizeElement(value, obj) {
     obj._objects.forEach(function(el){
       fontSizeElement(value, el);
     });
-  } else {
+  } else if (obj.type === 'textbox') {
     obj.fontSize = value;
+    obj.dirty;
   }
   design.renderAll();
 }
@@ -510,12 +517,57 @@ function borderElement(value, obj) {
     obj._objects.forEach(function(el){
       fontSizeElement(value, el);
     });
-  } else {
+  } else if (obj.type === 'textbox') {
     obj.textboxBorderSize = value;
+    obj.dirty = true;
   }
   design.renderAll();
 }
 
+function radiusElement(value, obj) {
+  if (!obj) {
+    obj = design.getActiveObject();
+  }
+  if (obj.type === 'activeSelection' || obj.type === 'group') {
+    obj._objects.forEach(function(el){
+      fontSizeElement(value, el);
+    });
+  } else if (obj.type === 'textbox') {
+    obj.radius = parseInt(value);
+    obj.dirty = true;
+  }
+  design.renderAll();
+}
+
+function textAlign(value, obj) {
+  if (!obj) {
+    obj = design.getActiveObject();
+  }
+  if (obj.type === 'activeSelection' || obj.type === 'group') {
+    obj._objects.forEach(function(el){
+      fontSizeElement(value, el);
+    });
+  } else if (obj.type === 'textbox') {
+    obj.textAlign = value;
+    obj.dirty = true;
+  }
+  design.renderAll();
+}
+
+function fontFamily(value, obj) {
+  if (!obj) {
+    obj = design.getActiveObject();
+  }
+  if (obj.type === 'activeSelection' || obj.type === 'group') {
+    obj._objects.forEach(function(el){
+      fontSizeElement(value, el);
+    });
+  } else if (obj.type === 'textbox') {
+    obj.fontFamily = value;
+    obj.dirty = true;
+  }
+  design.renderAll();
+}
 
 function sendBackwards() {
   var activeObject = design.getActiveObject();
@@ -687,7 +739,9 @@ function placeTextboxPoint(obj, x, y) {
   }
   obj.pointX = x - obj.left;
   obj.pointY = y - obj.top;
+  obj.dirty = true;
   design.renderAll();
+  design.setActiveObject(obj);
 }
 
 function startPan(event) {
@@ -723,49 +777,106 @@ fabric.Textbox.prototype._render = function(ctx) {
   
   ctx.filter = 'blur(' + this.blur + 'px)';
   
-  var w = this.width,
-    h = this.height,
-    x = -this.width / 2,
-    y = -this.height / 2;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + w, y);
-  ctx.lineTo(x + w, y + h);
-  ctx.lineTo(x, y + h);
-  ctx.lineTo(x, y);
-  ctx.closePath();
-  
-  var stroke = ctx.strokeStyle;
-  ctx.lineWidth = this.textboxBorderSize;
-  ctx.strokeStyle = this.textboxBorderColor;
-  ctx.stroke();
-  
-  /*text line*/
-  ctx.beginPath();
-  var startX;
-  if (this.pointX < 0) {
-    startX = x;
-  } else if (this.pointX < w) {
-    startX = x + w/2;
+  if (this.invert) {
+    this.fill = 'white';
+    this.backgroundColor = 'black';
+    this.textboxBorderColor = 'white';
   } else {
-    startX = x + w;
+    this.fill = 'black';
+    this.backgroundColor = 'white';
+    this.textboxBorderColor = 'black';
   }
-  var startY;
-  if (this.pointY < 0) {
-    startY = y;
-  } else if (this.pointY < h) {
-    startY = y + h/2;
-  } else {
-    startY = y + h;
+  
+  if (this.textboxBorderSize > 0) {
+    var w = this.width,
+      h = this.height,
+      x = -this.width / 2,
+      y = -this.height / 2;
+
+    ctx.fillStyle = this.backgroundColor;
+    ctx.lineWidth = this.textboxBorderSize;
+    ctx.strokeStyle = this.textboxBorderColor;
+    /*text line*/
+    console.log(x);
+    console.log(y);
+    console.log(h);
+    console.log(w);
+    console.log(this.pointX);
+    console.log(this.pointY);
+    if (this.pointY < y || this.pointY > h + y || this.pointX < x || this.poinyX > w + x) {
+      
+      
+      var startX;
+      if (this.pointX < 0) {
+        startX = x + this.radius / 4;
+        if (this.pointY > 0 && this.pointY < h) {
+          startX = x;
+        }
+      } else if (this.pointX < w) {
+        startX = x + w/2;
+      } else {
+        startX = x + w - this.radius/4;
+        if (this.pointY > 0 && this.pointY < h) {
+          startX = x + w;
+        }
+      }
+      
+      var startY;
+      if (this.pointY < 0) {
+        startY = y + this.radius/4;
+        if (this.pointX > 0 && this.pointX < w) {
+          startY = y;
+        }
+      } else if (this.pointY < h) {
+        startY = y + h/2;
+      } else {
+        startY = y + h - this.radius/4;
+        if (this.pointX > 0 && this.pointX < w) {
+          startY = y + h;
+        }
+      }
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      var subX = Math.abs(startX);
+      if (subX === 0) {
+        subX = w/2
+      }
+      var subY = Math.abs(startY);
+      if (subY === 0) {
+        subY = h/2
+      }
+      ctx.lineTo(this.pointX - subX, this.pointY - subY);
+      ctx.stroke();
+    }
+    roundRect(ctx, x, y, w, h, this.radius);
   }
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(this.pointX, this.pointY);
-  ctx.closePath();
-  ctx.stroke();
+  this.backgroundColor = 'transparent';
   originalTextboxRender.call(this, ctx);
-  
-  ctx.strokeStyle = stroke;
-  ctx.filter = 'none';
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  if (typeof radius === 'number') {
+    radius = {tl: radius, tr: radius, br: radius, bl: radius};
+  } else {
+    var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+    for (var side in defaultRadius) {
+      radius[side] = radius[side] || defaultRadius[side];
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y);
+  ctx.lineTo(x + width - radius.tr, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+  ctx.lineTo(x + width, y + height - radius.br);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+  ctx.lineTo(x + radius.bl, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+  ctx.lineTo(x, y + radius.tl);
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
 }
 
 var originalRenderCache = fabric.Object.prototype.renderCache;
@@ -806,3 +917,6 @@ fabric.Image.prototype.needsItsOwnCache = function() {return true};
 
 fabric.Object.prototype.stateProperties = fabric.Object.prototype.stateProperties.concat(['active', 'blur', 'invert', 'isMasked']);
 fabric.Object.prototype.cacheProperties = fabric.Object.prototype.cacheProperties.concat(['active', 'blur', 'invert', 'isMasked']);
+
+fabric.Textbox.prototype.stateProperties = fabric.Textbox.prototype.stateProperties.concat(['textboxBorderSize', 'textboxBorderColor']);
+fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat(['textboxBorderSize', 'textboxBorderColor']);
