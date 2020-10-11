@@ -65,8 +65,6 @@
                             </div>
                         </div>
                     </form>
-                    
-                    <p>Test account: test@example.com<br/>testtest</p>
                 </div>
             </div>
         </div>
