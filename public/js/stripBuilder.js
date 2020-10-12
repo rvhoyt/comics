@@ -581,7 +581,6 @@ const Builder = {
       });
       fabric.util.enlivenObjects(data, function(objects) {
         objects.forEach(function(obj, i) {
-          console.log(obj);
           obj.libraryId = ids[i];
         });
         ctrl.libraryElements = objects;
@@ -777,8 +776,6 @@ fabric.Image.prototype.renderCache = function() {
     'invert(' + this.invert + ')';
   if (this._cacheCanvas && this.dirty) {
     this._cacheContext.filter = filter;
-  } else {
-    console.log(this);
   }
   
   originalRenderCache.call(this);
