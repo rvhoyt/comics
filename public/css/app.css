@@ -10904,77 +10904,54 @@ a.text-dark:focus {
 }
 
 .design {
-    border: 1px solid black;
-    flex: 0.75;
-    margin-right: 25px;
-  }
-  #design{
-    margin-right: 0!important;
-  }
-  .draggableImage{
-    display: inline-block;
-    margin: 10px;
-    overflow: hidden;
-    max-height: 100px;
-    position:relative;
-  }
-  .draggableImage img{
-    height: 100%
-  }
-  .library-del{
-    position: absolute;
-    bottom:0;
-    right: 0;
-    display:none;
-  }
-  .draggableImage:hover .library-del{
-    display:inline-block;
-  }
-  #hiddenCanvas{
-    display:none;
-  }
-  #output{
-    float:right;
-  }
-  .controls{
-    flex: 0.15;
-    min-width: 250px;
-  }
-  .canvas-container{
-    display:flex;
-  }
-  .drawer{
-    width: 100%;
-    overflow-x: scroll;
-    height: 150px;
-    border-bottom: 1px solid black;
-    margin-bottom: 10px;
-    white-space: nowrap;
-  }
-  #textEditor{
-    display:none;
-  }
-  .show{
-    display:block!important;
-  }
-
-.tabbed-area input { display: none; }
-.tabbed-area input + label { display: inline-block }
-.tabbed-area input ~ .drawer .drawer-container { display: none }
-
-/* show contents only for selected tab */
-#tab1:checked ~ .drawer #drawer-items,
-#tab2:checked ~ .drawer #drawer-shapes,
-#tab3:checked ~ .drawer #drawer-characters,
-#tab4:checked ~ .drawer #drawer-pieces,
-#tab5:checked ~ .drawer #drawer-library { display: block; }
-
-#tab1:checked ~ label[for=tab1],
-#tab2:checked ~ label[for=tab2],
-#tab3:checked ~ label[for=tab3],
-#tab4:checked ~ label[for=tab4],
-#tab5:checked ~ label[for=tab5] {
-  color: #fff;
-  background-color: #6c757d;
-  border-color: #6c757d;
+  border: 1px solid black;
+  flex: 0.75;
+  margin-right: 25px;
 }
+#design{
+  margin-right: 0!important;
+}
+.draggableImage{
+  display: inline-block;
+  margin: 10px;
+  overflow: hidden;
+  max-height: 100px;
+  position:relative;
+}
+.draggableImage img{
+  max-height: 120px;
+}
+.library-del{
+  position: absolute;
+  bottom:0;
+  right: 0;
+  display:none;
+}
+.draggableImage:hover .library-del{
+  display:inline-block;
+}
+#hiddenCanvas{
+  display:none;
+}
+#output{
+  float:right;
+}
+.controls{
+  flex: 0.15;
+  min-width: 250px;
+}
+.canvas-container{
+  display:flex;
+}
+.drawer{
+  width: 100%;
+  overflow-x: scroll;
+  height: 150px;
+  border-bottom: 1px solid black;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+.show{
+  display:block!important;
+}
+  

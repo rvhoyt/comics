@@ -1,19 +1,13 @@
 @extends('layouts.app')
 @section('content')
-<div class="tabbed-area">
 
-  <input type="radio" name="tabs" id="tab1" checked />
-  <input type="radio" name="tabs" id="tab2" />
-  <input type="radio" name="tabs" id="tab3" />
-  <input type="radio" name="tabs" id="tab4" />
-  <input type="radio" name="tabs" id="tab5" />
-  
-  <label class="btn btn-outline-secondary" for="tab1">Items</label>
-  <label class="btn btn-outline-secondary" for="tab2">Shapes</label>
-  <label class="btn btn-outline-secondary" for="tab3">Characters</label>
-  <label class="btn btn-outline-secondary" for="tab4">Pieces</label>
-  <label class="btn btn-outline-secondary" for="tab5">Library</label>
-  
+<div id="builder">
+  <div class="tabbed-area">
+    <button class="btn"
+      :class="{active: selectedFolder === folder}"
+      v-for="folder in libaryFolders"
+      @click="selectedFolder = folder">@{{folder}}</button>
+  </div>
   <div class="drawer">
     <?php
       $folders = ['items', 'shapes', 'characters', 'pieces'];
@@ -21,7 +15,7 @@
       foreach($folders as $folder) {
         $files = scandir('shapes/' . $folder);
         ?>
-        <div class="drawer-container" id="drawer-<?php echo $folder;?>">
+        <div v-show="selectedFolder === '<?php echo ucfirst($folder);?>'" class="drawer-container">
         <?php
         
         foreach($files as $file) {
@@ -32,7 +26,7 @@
           $img = file_get_contents('shapes/' . $folder . '/' . $file);
           $img = 'data:image/svg+xml;base64,' . base64_encode($img);
           ?>
-          <div draggable="true" ondragstart="drag(event)" data-file="<?php echo $filename;?>" data-src="<?php echo $img;?>" class="draggableImage">
+          <div draggable="true" @dragstart="drag" data-file="<?php echo $filename;?>" data-src="<?php echo $img;?>" class="draggableImage">
           </div>
           <?php
         }
@@ -41,59 +35,80 @@
         <?php
       }
     ?>
-    <div class="drawer-container" id="drawer-library">WIP</div>
+    <div class="drawer-container" v-show="selectedFolder === 'Library'">
+      <div class="draggableImage" draggable="true" @dragstart="drag" v-for="(obj, i) in libraryElements">
+        <img :data-library="i" :src="obj.toDataURL()"/>
+        <button type="button" class="library-del btn btn-sm btn-danger" @click="deleteLibrary(obj.libraryId)">X</button>
+      </div>
+    </div>
   </div>
-</div>
-    <div class="canvas-container">
-      <canvas id="design" width="1000" height="600"></canvas>
-      <div class="controls">
-        <button type="button" onclick="setCanvas(682, 270)">Canvas 1 Line</button>
-        <button type="button" onclick="setCanvas(682, 530)">Canvas Half Page</button>
-        <button type="button" onclick="setCanvas(682, 1050)">Canvas Full Page</button>
+  
+  <div class="canvas-container">
+    <canvas id="design" width="1000" height="600"></canvas>
+    
+    <div class="controls">
+        <label>Zoom:
+          <input v-model="zoomValue" min="0.5" max="3" step="0.01" type="range" @change="design.setZoom($event.target.value)"/>
+        </label>
+        <span>@{{(zoomValue * 100).toFixed(0)}}%</span>
+        <br/>
+        <button type="button" @click="setCanvas(682, 270)">Canvas 1 Line</button>
+        <button type="button" @click="setCanvas(682, 530)">Canvas Half Page</button>
+        <button type="button" @click="setCanvas(682, 1050)">Canvas Full Page</button>
         <br/><br/>
-        <button id="group-btn" type="button" onclick="groupElements()" disabled="disabled">Group</button>
-        <button id="ungroup-btn" type="button" onclick="ungroupElements()" disabled="disabled">Ungroup</button>
+        <button type="button" @click="groupElements" :disabled="activeSelectionCount < 2">Group</button>
+        <button type="button" @click="ungroupElements" :disabled="activeSelectionType !== 'group'">Ungroup</button>
         <br/>
-        <button id="mask-btn" type="button" onclick="maskElements()" disabled="disabled">Mask</button>
-        <button id="flip-mask-btn" type="button" onclick="flipMask()" disabled="disabled">Flip Mask</button>
-        <button id="unmask-btn" type="button" onclick="unmaskElements()" disabled="disabled">Unmask</button>
+        <button type="button" @click="maskElements" :disabled="activeSelectionCount !== 2">Mask</button>
+        <button type="button" @click="flipMask" :disabled="!activeSelectionMasked">Flip Mask</button>
+        <button type="button" @click="unmaskElements" :disabled="!activeSelectionMasked">Unmask</button>
         <br/>
-        <button id="saveGroup-btn" type="button" onclick="saveGroupElements()" disabled="disabled">Save to Library</button>
+        <button type="button" @click="saveGroupElements" :disabled="activeSelectionType !== 'group'">Save to Library</button>
         <br/>
-        <label>Blur: <input id="blurSlider" value="0" min="0" max="3" step="0.01" type="range" onchange="blurElement(this.value)"/></label>
+        <label>Blur:
+          <input :value="blurValue" min="0" max="3" step="0.01" type="range" @change="blurElement($event.target.value)"/>
+        </label>
         <br/>
-        <label>Opacity: <input id="opacitySlider" value="1" min="0" max="1" step="0.01" type="range" onchange="opacityElement(this.value)"/></label>
+        <label>Opacity:
+          <input :value="opacityValue" min="0" max="1" step="0.01" type="range" @change="opacityElement($event.target.value)"/>
+        </label>
         <br/>
-        <button type="button" onclick="duplicateElement()">Duplicate</button>
-        <button type="button" onclick="deleteElements()">Delete</button>
-        <button type="button" onclick="invertElement()">Invert</button>
+        <button type="button" @click="duplicateElement()" :disabled="!activeSelectionCount">Duplicate</button>
+        <button type="button" @click="deleteElements()" :disabled="!activeSelectionCount">Delete</button>
+        <button type="button" @click="invertElement()" :disabled="!activeSelectionCount">Invert</button>
         <br/><br/>
-        <button type="button" onclick="flipX()">Flip Horizontally</button>
-        <button type="button" onclick="flipY()">Flip Vertically</button>
+        <button type="button" @click="flipX()" :disabled="!activeSelectionCount">Flip Horizontally</button>
+        <button type="button" @click="flipY()" :disabled="!activeSelectionCount">Flip Vertically</button>
         <br/><br/> 
-        <button type="button" onclick="sendBackwards()">Send Backwards</button>
-        <button type="button" onclick="sendToBack()">Send to Back</button>
+        <button type="button" @click="sendBackwards()" :disabled="!activeSelectionCount">Send Backwards</button>
+        <button type="button" @click="sendToBack()" :disabled="!activeSelectionCount">Send to Back</button>
         <br/><br/>
-        <button type="button" onclick="bringForward()">Bring Forwards</button>
-        <button type="button" onclick="bringToFront()">Bring to Front</button>
+        <button type="button" @click="bringForward()" :disabled="!activeSelectionCount">Bring Forwards</button>
+        <button type="button" @click="bringToFront()" :disabled="!activeSelectionCount">Bring to Front</button>
         <br/><br/>
-        <button type="button" onclick="addTextbox()">Add Textbox</button>
+        <button type="button" @click="addTextbox()">Add Textbox</button>
         
-        <div id="textEditor">
-          <button type="button" onclick="startPlaceTextboxPoint()">Place text line</button>
-          <label>Font Size: <input id="fontSizeSlider" value="12" min="1" max="81" step="1" type="range" onchange="fontSizeElement(this.value)"/></label>
+        <div v-if="activeSelectionType === 'textbox'">
+          <button type="button" @click="startPlaceTextboxPoint()">Place text line</button>
+          <label>Font Size:
+            <input :value="fontSizeValue" min="1" max="81" step="1" type="range" @change="textboxProperty('fontSize', $event.target.value)"/>
+          </label>
           
-          <label>Border Size: <input id="borderSlider" value="12" min="0" max="10" step="1" type="range" onchange="borderElement(this.value)"/></label>
+          <label>Border Size:
+            <input :value="borderSizeValue" min="0" max="10" step="1" type="range" @change="textboxProperty('textboxBorderSize', $event.target.value)"/>
+          </label>
           
-          <label>Roundness: <input id="radiusSlider" value="0" min="0" max="100" step="1" type="range" onchange="radiusElement(this.value)"/></label>
+          <label>Roundness:
+            <input :value="radiusValue" min="0" max="100" step="1" type="range" @change="textboxProperty('radius', $event.target.value)"/>
+          </label>
           
           <br/>
-          <button onclick="textAlign('left')" type="button">Left</button>
-          <button onclick="textAlign('center')" type="button">Center</button>
-          <button onclick="textAlign('justify')" type="button">Justify</button>
-          <button onclick="textAlign('right')" type="button">Right</button>
+          <button @click="textboxProperty('textAlign', 'left')" type="button">Left</button>
+          <button @click="textboxProperty('textAlign', 'center')" type="button">Center</button>
+          <button @click="textboxProperty('textAlign', 'justify')" type="button">Justify</button>
+          <button @click="textboxProperty('textAlign', 'right')" type="button">Right</button>
           
-          <select onchange="fontFamily(this.value)">
+          <select :value="fontFamilyValue" @change="textboxProperty('fontFamily', $event.target.value)">
             <option>Arial</option>
             <option>Comic Sans MS</option>
             <option>Times New Roman</option>
@@ -102,11 +117,11 @@
           
         </div>
         <br/><br/>
-        <button type="button" onclick="saveImage()">Save Image</button>
+        <button type="button" @click="saveImage()">Save Image</button>
       </div>
     </div>
     
-<div class="container">
+  <div class="container">
     <br/>
     <div class="row card">
       <form action="/builder" method="post" class="card-body">
@@ -114,15 +129,16 @@
         @csrf
         <div class="form-group">
             <label for="title">Title</label>
-            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" placeholder="Title" value="{{ old('title') }}" required>
+            <input type="text" class="form-control" name="title" placeholder="Title" required v-model="title">
         </div>
           
-          <textarea style="display:none" class="form-control @error('url') is-invalid @enderror" id="url" name="url" placeholder="URL" value="{{ old('url') }}" maxlength="1000"></textarea>
+          <textarea style="display:none" class="form-control" v-model="url" name="url" placeholder="URL" ></textarea>
+          
         <div class="form-group">
-            <label id="description-label" for="description">Description  <span id="description-length">0</span>/1000</label>
-            <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="description" required>{{ old('description') }}</textarea>
+            <label id="description-label" for="description" :class="{'text-danger':description.length > 1000}">Description  <span id="description-length">@{{description.length}}</span>/1000</label>
+            <textarea class="form-control" name="description" placeholder="description" required v-model="description">{{ old('description') }}</textarea>
         </div>
-        <button disabled="disabled" id="submit-button" type="submit" class="btn btn-primary">Submit</button>
+        <button :disabled="!description.length || description.length > 1000 || !url" type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
     
@@ -132,13 +148,14 @@
       </div>
     </div>
 
+  </div>
 </div>
 
 
 @endsection
 
 @section('myjsfile')
-  <script src="js/lodash.js"></script>
+  <script src="js/vue.min.js"></script>
   <script src="js/fabric.min.js"></script>
   <script src="js/stripBuilder.js"></script>
 @stop

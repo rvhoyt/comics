@@ -1,775 +1,700 @@
-document.addEventListener("DOMContentLoaded", function(){
-  document.getElementById('description').addEventListener('keyup', function(e) {
-    var len = e.target.value.length;
-    document.getElementById('description-length').innerText = len;
-    if (len > 1000) {
-      document.getElementById('description-label').style.color = 'red';
-      document.getElementById('submit-button').style.display = 'none';
-    } else {
-      document.getElementById('description-label').style.color = 'black';
-      document.getElementById('submit-button').style.display = 'inline-block';
+const Builder = {
+  data() {
+    return {
+      activeSelectionCount: 0,
+      activeSelectionMasked: false,
+      activeSelectionType: undefined,
+      canvas: undefined,
+      canvasHeight: undefined,
+      canvasWidth: undefined,
+      customProperties: ['active', 'blur', 'invert', 'isMasked', 'textboxBorderSize', 'textboxBorderColor', 'radius', 'pointX', 'pointY'],
+      description: '',
+      imgSrcs: [],
+      libraryElements: [],
+      libaryFolders: ['Items', 'Shapes', 'Characters', 'Library'],
+      selectedFolder: 'Items',
+      title: '',
+      url: '',
+      zoomValue: 1
     }
-  });
-  
-  design = new fabric.Canvas('design', {
-    containerClass: 'design',
-    stopContextMenu: true,
-    preserveObjectStacking: true
-  });
-  design.wrapperEl.addEventListener('mousedown', startPan);
-  design.setWidth(document.querySelector('.design').offsetWidth-2);
-  
-  setCanvas(682, 270, true);
-  
-  /*listeners for canvas*/
-  design.on('object:modified', function() {
-
-  });
-
-  design.on('selection:created', function(event) {
-    var objs = event.selected;
-    var blurValue = objs.map((a) => a.blur).reduce((a, b) => (a + b)) / objs.length;
-    document.getElementById('blurSlider').value = blurValue;
-    
-    var opacityValue = objs.map((a) => a.opacity).reduce((a, b) => (a + b)) / objs.length;
-    document.getElementById('opacitySlider').value = opacityValue;
-    
-    var hasText = objs.some((el) => el.type === 'textbox');
-    if (hasText) {
-      var fontValue = objs.map((a) => {if(a.type === 'textbox'){return a.fontSize}}).reduce((a, b) => (a + b)) / objs.length;
-      document.getElementById('fontSizeSlider').value = fontValue;
-      
-      var fontValue = objs.map((a) => {if(a.type === 'textbox'){return a.textboxBorderSize}}).reduce((a, b) => (a + b)) / objs.length;
-      document.getElementById('borderSlider').value = fontValue;
-      
-      var blurValue = objs.map((a) => {if(a.type === 'textbox'){return a.blur}}).reduce((a, b) => (a + b)) / objs.length / 10;
-      document.getElementById('blurSlider').value = blurValue;
-      
-      document.getElementById('textEditor').classList.add('show');
-    } else {
-      document.getElementById('textEditor').classList.remove('show');
-    }
-    
-    
-    if (objs.length === 1 && objs[0].type === 'group' && !objs.isMasked) {
-      document.getElementById('ungroup-btn').disabled = false;
-      document.getElementById('saveGroup-btn').disabled = false;
-    } else {
-      document.getElementById('ungroup-btn').disabled = true;
-      document.getElementById('saveGroup-btn').disabled = true;
-    }
-    
-    if (objs.length > 1) {
-      $('#group-btn').attr('disabled', false);
-    } else {
-      $('#group-btn').attr('disabled', true);
-    }
-    
-    if (objs.length === 1 && objs[0].type === 'group' && objs[0].isMasked) {
-      $('#unmask-btn').attr('disabled', false);
-      $('#flip-mask-btn').attr('disabled', false);
-    } else {
-      $('#unmask-btn').attr('disabled', true);
-      $('#flip-mask-btn').attr('disabled', true);
-    }
-    
-    if (objs.length === 2) {
-      $('#mask-btn').attr('disabled', false);
-    } else {
-      $('#mask-btn').attr('disabled', true);
-    }
-    
-  });
-
-  // hook up the pan and zoom
-  design.on('mouse:wheel', function(opt) {
-    var delta = opt.e.deltaY;
-    var zoom = design.getZoom();
-    zoom *= 0.999 ** delta;
-    if (zoom > 20) zoom = 20;
-    if (zoom < 0.01) zoom = 0.01;
-    this.setZoom(zoom);
-    opt.e.preventDefault();
-    opt.e.stopPropagation();
-  });
-  design.on('mouse:down', function(opt) {
-    var evt = opt.e;
-    if (this.placingPoint) {
-      placeTextboxPoint(this.placingPoint, evt.layerX, evt.layerY);
-      this.placingPoint = false;
-    }
-  });
-  /*design.on('mouse:move', function(opt) {
-    
-  });
-  design.on('mouse:up', function(opt) {
-    
-  });*/
-
-  document.addEventListener('keydown', function(e) {
-    if ((e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT') && (e.which === 8 || e.which === 46)) {
-      e.preventDefault();
-      deleteElements();
-    } else if (e.which === 67 && e.ctrlKey) {
-      copyElement();
-    } else if (e.which === 86 && e.ctrlKey && (e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT')) {
-      pasteElement();
-    } else if (e.which === 40) {
-      /*down*/
-      var obj = design.getActiveObject();
-      obj.top++;
-      design.renderAll();
-    } else if (e.which === 39) {
-      /*right*/
-      var obj = design.getActiveObject();
-      obj.left++;
-      design.renderAll();
-    } else if (e.which === 38) {
-      /*up*/
-      var obj = design.getActiveObject();
-      obj.top--;
-      design.renderAll();
-    } else if (e.which === 37) {
-      /*left*/
-      var obj = design.getActiveObject();
-      obj.left--;
-      design.renderAll();
-    }
-  });
-
-  /* image adding*/
-  design.on('drop', function(ev) {
-    var zoom = design.getZoom();
-    var shiftX = design.viewportTransform[4];
-    var shiftY = design.viewportTransform[5]; 
-    ev.e.preventDefault();
-    var src = ev.e.dataTransfer.getData("src");
-    var library = ev.e.dataTransfer.getData("library");
-    var offsetX = ev.e.dataTransfer.getData("x");
-    var offsetY = ev.e.dataTransfer.getData("y");
-    var x = ev.e.offsetX - offsetX - shiftX;
-    var y = ev.e.offsetY - offsetY - shiftY;
-    if (library && libraryElements[library]) {
-      src = libraryElements[library].clone(function(clone) {
-        clone.top = y / zoom;
-        clone.left = x / zoom;
-        design.add(clone);
-      }, ['blur', 'invert', 'perPixelTargetFind', 'isMasked']);
-    } else {
-      addImage(src, x / zoom, y / zoom);
-    }
-  });
-});
-
-/*window.addEventListener("beforeunload", function(e) {
-  e.preventDefault();
-  e.returnValue = '';
-});*/
-
-var images = document.querySelectorAll('.draggableImage');
-
-var imgSrcs = [];
-/*convert all svg xml into images*/
-[].forEach.call(images, function(div) {
-  var src = div.dataset.src;
-  var file = div.dataset.file;
-  imgSrcs.push({src: src, file: file});
-  div.innerHTML = '<img src="' + src + '"/>';
-});
-
-var libraryElements;
-
-function updateLibrary (data) {
-  function replaceSrc(data) {
-    data.objects.map(function(obj) {
-      if (obj.type === 'image') {
-        var img = imgSrcs.find(src => src.file === obj.src);
-        obj.src = img.src;
-      } else if (obj.type === 'group') {
-        obj = replaceSrc(obj);
+  },
+  computed: {
+    blurValue: function() {
+      if (!this.activeSelectionCount) {
+        return 0;
       }
-    });
-    return data;
-  }
-  var ids = [];
-  data = data.map(function(obj) {
-    ids.push(obj.id);
-    var obj = JSON.parse(obj.data);
-    obj = replaceSrc(obj);
-    return obj;
-  });
-  fabric.util.enlivenObjects(data, function(objects) {
-    libraryElements = objects;
-    var drawer = document.getElementById('drawer-library');
-    var html = '';
-    objects.forEach(function(obj, i) {
-      var img = obj.toDataURL();
-      html += '<div class="draggableImage" draggable="true" ondragstart="drag(event)"><img data-library="' + i + '" src="' + img + '"/><button type="button" class="library-del btn btn-sm btn-danger" onclick="deleteLibrary(' + ids[i] + ')">X</button></div>';
-    })
-    drawer.innerHTML = html;
-  });
-}
-
-fetch('/library').then(function (response) {
-  return response.ok ? response.json() : Promise.reject(response);
-})
-.then(updateLibrary)
-.catch(function (err) {
-  console.warn('Something went wrong.', err);
-});
-
-var design;
-var canvasWidth;
-var canvasHeight;
-
-function setCanvas(width, height, skip = false) {
-  if (!skip) {
-    var check = confirm('Resizing the canvas will erase the contents.');
-    if (!check) {
-      return false;
-    }
-  }
-  design.clear();
-  design.backgroundColor = 'lightgrey';
-  canvasWidth = width;
-  canvasHeight = height;
-  var rect = new fabric.Rect({
-    width: canvasWidth,
-    height: canvasHeight,
-    fill: 'white',
-    top: 100,
-    left: 100,
-    selectable: false,
-    hoverCursor: 'cursor',
-  });
-  design.add(rect);
-}
-
-function saveImage() {
-  design.setZoom(1);
-  design.absolutePan({x:0, y:0});
-  design.discardActiveObject().renderAll();
-  var hiddenCanvas = document.getElementById('hiddenCanvas');
-  hiddenCanvas.style.display = 'block';
-  hiddenCanvas.width = canvasWidth;
-  hiddenCanvas.height = canvasHeight;
-  var copy = design.toCanvasElement(1, {
-    left: 100,
-    top: 100,
-    width: canvasWidth,
-    height: canvasHeight
-  });
-  var ctx = hiddenCanvas.getContext('2d');
-  ctx.drawImage(copy, 0, 0);
-  var dataUrl = hiddenCanvas.toDataURL("image/png");
-  document.getElementById('url').value = dataUrl;
-  document.getElementById('submit-button').disabled = false;
-}
-
-
-/* pull images from library to canvas*/
-function drag(ev) {
-  var x = ev.offsetX;
-  var y = ev.offsetY;
-  ev.dataTransfer.setData("src", ev.target.src);
-  ev.dataTransfer.setData("library", ev.target.dataset.library);
-  ev.dataTransfer.setData("x", x);
-  ev.dataTransfer.setData("y", y);
-} 
-
-function addImage(src, x, y) {
-  x = x ? x : 100;
-  y = y ? y : 100;
-  fabric.Image.fromURL(src, function(img) {
-    img.set({
-      left: x,
-      top: y,
-      blur: 0,
-      invert: 0
-    });
-
-    img.perPixelTargetFind = true;
-
-    design.add(img);
-    design.discardActiveObject();
-    design.setActiveObject(design._objects[design._objects.length - 1]);
-  });
-}
-
-function addTextbox() {
-  var textbox = new fabric.Textbox('double click to write...', {
-    left: 100,
-    top: 100,
-    fontSize: 12,
-    textboxBorderSize: 1,
-    textboxBorderColor: 'black',
-    backgroundColor: 'white',
-    pointX: 50,
-    pointY: 50,
-    blur: 0,
-    invert: 0,
-    radius: 0,
-    textAlign: 'center',
-    fontFamily: 'Verdana'
-  });
-  textbox.setControlsVisibility({
-    mt: false,
-    mb: false,
-    bl: false,
-    br: false,
-    tl: false,
-    tr: false,
-  });
-  design.add(textbox);
-}
-
-/*image manipulation*/
-function clipElements() {
-  if (!design.getActiveObject()) {
-    return;
-  }
-  if (design.getActiveObject().type !== 'activeSelection') {
-    return;
-  }
-  var g = design.getActiveObject()._objects;
-  g[1].clipPath = g[0];
-  design.requestRenderAll();
-}
-
-function deleteElements() {
-  var activeObject = design.getActiveObjects();
-  design.discardActiveObject();
-  design.remove(...activeObject);
-  design.renderAll();
-}
-
-function groupElements() {
-  var active = design.getActiveObject();
-  if (!active) {
-    return;
-  }
-  if (active.type !== 'activeSelection') {
-    return;
-  }
-  var g = active.toGroup();
-  g.perPixelTargetFind = true;
-  g.blur = 0;
-  g.invert = 0;
-  function handleMasks (obj) {
-    if (obj.isMasked) {
-      obj.shouldCache = function() {return true};
-    }
-    if (obj.type === 'group') {
-      obj.forEachObject(function(o) {
-        handleMasks(o);
-      });
-    }
-    return obj;
-  }
-  g = handleMasks(g);
-  design.requestRenderAll();
-  document.getElementById('ungroup-btn').disabled = false;
-  document.getElementById('saveGroup-btn').disabled = false;
-}
-
-function ungroupElements() {
-  if (!design.getActiveObject()) {
-    return;
-  }
-  if (design.getActiveObject().type !== 'group' || design.getActiveObject().isMasked) {
-    return;
-  }
-  design.getActiveObject().toActiveSelection();
-  design.requestRenderAll();
-  document.getElementById('ungroup-btn').disabled = true;
-  document.getElementById('saveGroup-btn').disabled = true;
-}
-
-function saveGroupElements() {
-  if (!design.getActiveObject()) {
-    return;
-  }
-  if (design.getActiveObject().type !== 'group') {
-    return;
-  }
-  var group = design.getActiveObject();
-  var data = group.toDatalessObject(['blur','invert', 'isMasked', 'perPixelTargetFind']);
-  function replaceSrc(data) {
-    data.objects.map(function(obj) {
-      if (obj.type === 'image') {
-        var img = imgSrcs.find(src => src.src === obj.src);
-        obj.src = img.file;
-      } else if (obj.type === 'group') {
-        obj = replaceSrc(obj);
+      var objs = this.design.getActiveObjects();
+      return objs.map((a) => a.blur).reduce((a, b) => (a + b)) / objs.length;
+    },
+    borderSizeValue: function() {
+      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
+        return 0;
       }
-    });
-    return data;
-  }
-  data = replaceSrc(data);
-  data = JSON.stringify(data);
-  var payload = {
-    data: data
-  }
-  
-  fetch('/library', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-    headers: {
-      'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').attributes.content.value
-    }
-  }).then(function (response) {
-    return response.ok ? response.json() : Promise.reject(response);
-  }).then(updateLibrary).catch(function (err) {
-    console.warn('Something went wrong.', err);
-  });
-}
-
-function deleteLibrary(id) {
-  var check = confirm('Are you sure you want to delete this library element?');
-  if (!check) {
-    return;
-  }
-  fetch('/library/' + id + '/delete').then(function (response) {
-    return response.ok ? response.json() : Promise.reject(response);
-  }).then(updateLibrary).catch(function (err) {
-    console.warn('Something went wrong.', err);
-  });
-}
-
-function blurElement(value, obj) {
-  var one = false;
-  if (!obj) {
-    one = true;
-    obj = design.getActiveObject();
-  }
-  if (!obj) {
-    return;
-  }
-  if (obj.type === 'textbox') {
-    obj.blur = value * 10;
-    obj.dirty = true;
-  } else if (obj.type === 'activeSelection') {
-    obj.forEachObject(function(el){
-      blurElement(value, el);
-    });
-  } else {
-    obj.blur = value;
-    obj.dirty = true;
-  }
-  if (one) {
-    design.renderAll();
-  }
-}
-
-function invertElement(obj) {
-  var one = false;
-  if (!obj) {
-    one = true;
-    obj = design.getActiveObject();
-  }
-  if (obj.type === 'activeSelection') {
-    obj.forEachObject(function(el){
-      invertElement(el);
-    });
-  } else {
-    obj.invert = obj.invert ? 0 : 1;
-    obj.dirty = true;
-  }
-  if (one) {
-    design.renderAll();
-  }
-}
-
-function opacityElement(value, obj) {
-  if (!obj) {
-    obj = design.getActiveObject();
-  }
-  if (obj.type === 'activeSelection') {
-    obj._objects.forEach(function(el){
-      opacityElement(value, el);
-    });
-  } else {
-    obj.opacity = value;
-  }
-  design.renderAll();
-}
-
-function fontSizeElement(value, obj) {
-  if (!obj) {
-    obj = design.getActiveObject();
-  }
-  if (obj.type === 'activeSelection' || obj.type === 'group') {
-    obj._objects.forEach(function(el){
-      fontSizeElement(value, el);
-    });
-  } else if (obj.type === 'textbox') {
-    obj.fontSize = value;
-    obj.dirty;
-  }
-  design.renderAll();
-}
-
-function borderElement(value, obj) {
-  if (!obj) {
-    obj = design.getActiveObject();
-  }
-  if (obj.type === 'activeSelection' || obj.type === 'group') {
-    obj._objects.forEach(function(el){
-      fontSizeElement(value, el);
-    });
-  } else if (obj.type === 'textbox') {
-    obj.textboxBorderSize = value;
-    obj.dirty = true;
-  }
-  design.renderAll();
-}
-
-function radiusElement(value, obj) {
-  if (!obj) {
-    obj = design.getActiveObject();
-  }
-  if (obj.type === 'activeSelection' || obj.type === 'group') {
-    obj._objects.forEach(function(el){
-      fontSizeElement(value, el);
-    });
-  } else if (obj.type === 'textbox') {
-    obj.radius = parseInt(value);
-    obj.dirty = true;
-  }
-  design.renderAll();
-}
-
-function textAlign(value, obj) {
-  if (!obj) {
-    obj = design.getActiveObject();
-  }
-  if (obj.type === 'activeSelection' || obj.type === 'group') {
-    obj._objects.forEach(function(el){
-      fontSizeElement(value, el);
-    });
-  } else if (obj.type === 'textbox') {
-    obj.textAlign = value;
-    obj.dirty = true;
-  }
-  design.renderAll();
-}
-
-function fontFamily(value, obj) {
-  if (!obj) {
-    obj = design.getActiveObject();
-  }
-  if (obj.type === 'activeSelection' || obj.type === 'group') {
-    obj._objects.forEach(function(el){
-      fontSizeElement(value, el);
-    });
-  } else if (obj.type === 'textbox') {
-    obj.fontFamily = value;
-    obj.dirty = true;
-  }
-  design.renderAll();
-}
-
-function sendBackwards() {
-  var activeObject = design.getActiveObject();
-  if (activeObject) {
-    var background = design._objects[0];
-    design.sendBackwards(activeObject);
-    background.sendToBack();
-    design.renderAll();
-  }
-};
-
-function sendToBack() {
-  var activeObject = design.getActiveObject();
-  if (activeObject) {
-    var background = design._objects[0];
-    design.sendToBack(activeObject);
-    background.sendToBack();
-    design.renderAll();
-  }
-};
-
-function bringForward() {
-  var activeObject = design.getActiveObject();
-  if (activeObject) {
-    design.bringForward(activeObject);
-    design.renderAll();
-  }
-};
-
-function bringToFront() {
-  var activeObject = design.getActiveObject();
-  if (activeObject) {
-    design.bringToFront(activeObject);
-    design.renderAll();
-  }
-};
-
-function flipX() {
-  var obj = design.getActiveObject();
-  obj.flipX = !obj.flipX;
-  design.renderAll();
-}
-
-function flipY() {
-  var obj = design.getActiveObject();
-  obj.flipY = !obj.flipY;
-  design.renderAll();
-}
-
-function maskElements() {
-  var active = design.getActiveObject();
-  if (active._objects.length !== 2) {
-    return;
-  }
-  groupElements();
-  active = design.getActiveObject();
-  active.isMasked = true;
-  active._objects[1].globalCompositeOperation = 'source-out';
-  design.discardActiveObject();
-  design.renderAll();
-}
-
-function flipMask() {
-  var active = design.getActiveObject();
-  if (!active || !active.isMasked) {
-    return;
-  }
-  if (active._objects[1].globalCompositeOperation === 'source-out') {
-    active._objects[1].globalCompositeOperation = 'source-in';
-  } else {
-    active._objects[1].globalCompositeOperation = 'source-out';
-  }
-  active.dirty = true;
-  design.renderAll();
-}
-
-function unmaskElements() {
-  var active = design.getActiveObject();
-  if (!active || !active.isMasked) {
-    return;
-  }
-  active._objects[1].globalCompositeOperation = 'source-over';
-  active.isMasked = false;
-  ungroupElements();
-  design.renderAll();
-}
-
-function duplicateElement() {
-  copyElement();
-  setTimeout(pasteElement, 50);
-}
-
-function copyElement() {
-  var active = design.getActiveObject();
-  return design.getActiveObject().clone(function(cloned) {
-    _clipboard = cloned;
-  }, ['invert', 'blur', 'perPixelTargetFind', 'isMasked', 'textboxBorderSize', 'radius', 'pointX', 'pointY']);
-}
-
-function pasteElement() {
-  if (!_clipboard) {
-    return;
-  }
-  // clone again, so you can do multiple copies.
-  _clipboard.clone(function(clonedObj) {
-    var left = clonedObj.left + 10;
-    var top = clonedObj.top + 10;
-    clonedObj.set({
-      left: clonedObj.left + 10,
-      top: clonedObj.top + 10,
-      evented: true
-    });
-    var objs = [];
-    function recursiveSet (obj, old) {
-      if (obj.isMasked) {
-        obj.shouldCache = function() {return true};
+      var objs = this.design.getActiveObjects();
+      return objs[0].textboxBorderSize;
+    },
+    fontFamilyValue: function() {
+      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
+        return 'Verdana';
       }
-      if (obj.type === 'group') {
-        obj.forEachObject(function(o, i) {
-          recursiveSet(o, old._objects[i]);
+      var objs = this.design.getActiveObjects();
+      return objs[0].fontFamily;
+    },
+    fontSizeValue: function() {
+      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
+        return 0;
+      }
+      var objs = this.design.getActiveObjects();
+      return objs[0].fontSize;
+    },
+    opacityValue: function() {
+      if (!this.activeSelectionCount) {
+        return 0;
+      }
+      var objs = this.design.getActiveObjects();
+      return objs.map((a) => a.opacity).reduce((a, b) => (a + b)) / objs.length;
+    },
+    radiusValue: function() {
+      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
+        return 0;
+      }
+      var objs = this.design.getActiveObjects();
+      return objs[0].radius;
+    }
+  },
+  methods: {
+    addImage: function(src, x, y) {
+      var ctrl = this;
+      x = x ? x : 100;
+      y = y ? y : 100;
+      fabric.Image.fromURL(src, function(img) {
+        img.set({
+          left: x,
+          top: y,
+          blur: 0,
+          invert: 0
         });
-      }
-      return obj;
-    }
-    if (clonedObj.type === 'activeSelection') {
-      // active selection needs a reference to the canvas.
-      clonedObj.design = design;
-      clonedObj = recursiveSet(clonedObj, _clipboard);
-      clonedObj.forEachObject(function(obj, i) {
-        objs.push(obj);
-        design.add(obj);
+
+        img.perPixelTargetFind = true;
+
+        ctrl.design.add(img);
+        ctrl.design.discardActiveObject();
+        ctrl.design.setActiveObject(ctrl.design._objects[ctrl.design._objects.length - 1]);
       });
-    } else {
-      clonedObj = recursiveSet(clonedObj, _clipboard);
-      objs.push(clonedObj);
-      design.add(clonedObj);
-    }
-    _clipboard.top += 10;
-    _clipboard.left += 10;
-    var sel = new fabric.ActiveSelection(objs, {
-      canvas: design,
-    });
-    design.discardActiveObject();
-    design.setActiveObject(sel);
-    function recursiveDirty(obj) {
-      obj.dirty = true;
-      if (obj.type === 'group' || obj.type === 'activeSelection') {
-        obj.forEachObject(recursiveDirty);
+    },
+    addTextbox: function() {
+      var textbox = new fabric.Textbox('double click to write...', {
+        left: 100,
+        top: 100,
+        fontSize: 12,
+        textboxBorderSize: 1,
+        textboxBorderColor: 'black',
+        backgroundColor: 'white',
+        pointX: 50,
+        pointY: 50,
+        blur: 0,
+        invert: 0,
+        radius: 0,
+        textAlign: 'center',
+        fontFamily: 'Verdana'
+      });
+      textbox.setControlsVisibility({
+        mt: false,
+        mb: false,
+        bl: false,
+        br: false,
+        tl: false,
+        tr: false,
+      });
+      this.design.add(textbox);
+    },
+    blurElement: function(value, obj) {
+      var ctrl = this;
+      var one = false;
+      if (!obj) {
+        one = true;
+        obj = this.design.getActiveObject();
       }
-      return obj;
-    }
-    setTimeout(function() {
-      recursiveDirty(sel);
-      design.renderAll();
-    }, 30);
-  }, ['blur', 'invert', 'perPixelTargetFind', 'isMasked', 'textboxBorderSize', 'radius', 'pointX', 'pointY']);
-}
-
-function startPlaceTextboxPoint() {
-  var obj = design.getActiveObject();
-  if (obj.type === 'textbox') {
-    design.placingPoint = obj;
-  }
-}
-
-function placeTextboxPoint(obj, x, y) {
-  if (!obj || obj.type !== 'textbox') {
-    return;
-  }
-  obj.pointX = x - obj.left;
-  obj.pointY = y - obj.top;
-  obj.dirty = true;
-  design.renderAll();
-  design.setActiveObject(obj);
-}
-
-function startPan(event) {
-    if (event.button != 2) {
+      if (!obj) {
         return;
-    }
-    var x0 = event.screenX,
-        y0 = event.screenY;
-
-    function continuePan(event) {
-        var x = event.screenX,
-            y = event.screenY;
-        design.relativePan({
-            x: x - x0,
-            y: y - y0
+      }
+      if (obj.type === 'textbox') {
+        obj.blur = value * 10;
+        obj.dirty = true;
+      } else if (obj.type === 'activeSelection') {
+        obj.forEachObject(function(el){
+          ctrl.blurElement(value, el);
         });
-        x0 = x;
-        y0 = y;
+      } else {
+        obj.blur = value;
+        obj.dirty = true;
+      }
+      if (one) {
+        this.design.renderAll();
+      }
+    },
+    bringForward: function() {
+      var activeObject = this.design.getActiveObject();
+      if (activeObject) {
+        this.design.bringForward(activeObject);
+        this.design.renderAll();
+      }
+    },
+    bringToFront: function() {
+      var activeObject = this.design.getActiveObject();
+      if (activeObject) {
+        this.design.bringToFront(activeObject);
+        this.design.renderAll();
+      }
+    },
+    copyElement: function() {
+      var ctrl = this;
+      var active = this.design.getActiveObject();
+      if (!active) {
+        return;
+      }
+      return this.design.getActiveObject().clone(function(cloned) {
+        ctrl._clipboard = cloned;
+      }, ctrl.customProperties);
+    },
+    deleteElements: function() {
+      var activeObject = this.design.getActiveObjects();
+      this.design.discardActiveObject();
+      this.design.remove(...activeObject);
+      this.design.renderAll();
+    },
+    deleteLibrary: function(id) {
+      var check = confirm('Are you sure you want to delete this library element?');
+      if (!check) {
+        return;
+      }
+      fetch('/library/' + id + '/delete').then(function (response) {
+        return response.ok ? response.json() : Promise.reject(response);
+      }).then(this.updateLibrary).catch(function (err) {
+        console.warn('Something went wrong.', err);
+      });
+    },
+    drag: function(ev) {
+      var x = ev.offsetX;
+      var y = ev.offsetY;
+      ev.dataTransfer.setData("src", ev.target.src);
+      ev.dataTransfer.setData("library", ev.target.dataset.library);
+      ev.dataTransfer.setData("x", x);
+      ev.dataTransfer.setData("y", y);
+    },
+    drop: function(ev) {
+      var ctrl = this;
+      var zoom = ctrl.design.getZoom();
+      var shiftX = ctrl.design.viewportTransform[4];
+      var shiftY = ctrl.design.viewportTransform[5]; 
+      ev.e.preventDefault();
+      var src = ev.e.dataTransfer.getData("src");
+      var library = ev.e.dataTransfer.getData("library");
+      var offsetX = ev.e.dataTransfer.getData("x");
+      var offsetY = ev.e.dataTransfer.getData("y");
+      var x = ev.e.offsetX - offsetX - shiftX;
+      var y = ev.e.offsetY - offsetY - shiftY;
+      if (library && this.libraryElements[library]) {
+        src = this.libraryElements[library].clone(function(clone) {
+          clone.top = y / zoom;
+          clone.left = x / zoom;
+          ctrl.design.add(clone);
+          ctrl.design.setActiveObject(clone);
+          ctrl.ungroupElements();
+          ctrl.groupElements();
+        }, ctrl.customProperties);
+      } else {
+        ctrl.addImage(src, x / zoom, y / zoom);
+      }
+    },
+    duplicateElement: function() {
+      this.copyElement();
+      setTimeout(this.pasteElement, 50);
+    },
+    flipMask: function() {
+      var active = this.design.getActiveObject();
+      if (!active || !active.isMasked) {
+        return;
+      }
+      if (active._objects[1].globalCompositeOperation === 'source-out') {
+        active._objects[1].globalCompositeOperation = 'source-in';
+      } else {
+        active._objects[1].globalCompositeOperation = 'source-out';
+      }
+      active.dirty = true;
+      this.design.renderAll();
+    },
+    flipX: function() {
+      var obj = this.design.getActiveObject();
+      obj.flipX = !obj.flipX;
+      this.design.renderAll();
+    },
+    flipY: function() {
+      var obj = this.design.getActiveObject();
+      obj.flipY = !obj.flipY;
+      this.design.renderAll();
+    },
+    groupElements: function() {
+      var active = this.design.getActiveObject();
+      if (!active) {
+        return;
+      }
+      if (active.type !== 'activeSelection') {
+        return;
+      }
+      var g = active.toGroup();
+      g.perPixelTargetFind = true;
+      g.blur = 0;
+      g.invert = 0;
+      function handleMasks (obj) {
+        if (obj.isMasked) {
+          obj.shouldCache = function() {return true};
+        }
+        if (obj.type === 'group') {
+          obj.forEachObject(function(o) {
+            handleMasks(o);
+          });
+        }
+        return obj;
+      }
+      g = handleMasks(g);
+      this.design.requestRenderAll();
+      this.updateActiveSelectionType();
+    },
+    handleShortcuts: function(e) {
+      if ((e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT') && (e.which === 8 || e.which === 46)) {
+        e.preventDefault();
+        this.deleteElements();
+      } else if (e.which === 67 && e.ctrlKey) {
+        this.copyElement();
+      } else if (e.which === 86 && e.ctrlKey && (e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT')) {
+        this.pasteElement();
+      } else if (e.which === 40) {
+        /*down*/
+        var obj = this.design.getActiveObject();
+        obj.top++;
+        this.design.renderAll();
+      } else if (e.which === 39) {
+        /*right*/
+        var obj = this.design.getActiveObject();
+        obj.left++;
+        this.design.renderAll();
+      } else if (e.which === 38) {
+        /*up*/
+        var obj = this.design.getActiveObject();
+        obj.top--;
+        this.design.renderAll();
+      } else if (e.which === 37) {
+        /*left*/
+        var obj = this.design.getActiveObject();
+        obj.left--;
+        this.design.renderAll();
+      }
+    },
+    invertElement: function(obj) {
+      var ctrl = this;
+      var one = false;
+      if (!obj) {
+        one = true;
+        obj = this.design.getActiveObject();
+      }
+      if (obj.type === 'activeSelection') {
+        obj.forEachObject(function(el){
+          ctrl.invertElement(el);
+        });
+      } else {
+        obj.invert = obj.invert ? 0 : 1;
+        obj.dirty = true;
+      }
+      if (one) {
+        this.design.renderAll();
+      }
+    },
+    maskElements: function() {
+      var active = this.design.getActiveObject();
+      if (active._objects.length !== 2) {
+        return;
+      }
+      this.groupElements();
+      active = this.design.getActiveObject();
+      active.isMasked = true;
+      active._objects[1].globalCompositeOperation = 'source-out';
+      this.design.discardActiveObject();
+      this.design.renderAll();
+      this.updateActiveSelectionType();
+    },
+    opacityElement: function(value, obj) {
+      var ctrl = this;
+      if (!obj) {
+        obj = this.design.getActiveObject();
+      }
+      if (obj.type === 'activeSelection') {
+        obj._objects.forEach(function(el){
+          ctrl.opacityElement(value, el);
+        });
+      } else {
+        obj.opacity = value;
+      }
+      this.design.renderAll();
+    },
+    pasteElement: function() {
+      var ctrl = this;
+      if (!this._clipboard) {
+        return;
+      }
+      // clone again, so you can do multiple copies.
+      this._clipboard.clone(function(clonedObj) {
+        var left = clonedObj.left + 10;
+        var top = clonedObj.top + 10;
+        clonedObj.set({
+          left: clonedObj.left + 10,
+          top: clonedObj.top + 10,
+          evented: true
+        });
+        var objs = [];
+        function recursiveSet (obj, old) {
+          if (obj.isMasked) {
+            obj.shouldCache = function() {return true};
+          }
+          if (obj.type === 'group') {
+            obj.forEachObject(function(o, i) {
+              recursiveSet(o, old._objects[i]);
+            });
+          }
+          return obj;
+        }
+        if (clonedObj.type === 'activeSelection') {
+          // active selection needs a reference to the canvas.
+          clonedObj.canvas = ctrl.design;
+          clonedObj = recursiveSet(clonedObj, ctrl._clipboard);
+          clonedObj.forEachObject(function(obj, i) {
+            objs.push(obj);
+            ctrl.design.add(obj);
+          });
+        } else {
+          clonedObj = recursiveSet(clonedObj, ctrl._clipboard);
+          objs.push(clonedObj);
+          ctrl.design.add(clonedObj);
+        }
+        ctrl._clipboard.top += 10;
+        ctrl._clipboard.left += 10;
+        var sel = new fabric.ActiveSelection(objs, {
+          canvas: ctrl.design,
+        });
+        ctrl.design.discardActiveObject();
+        ctrl.design.setActiveObject(sel);
+        function recursiveDirty(obj) {
+          obj.dirty = true;
+          if (obj.type === 'group' || obj.type === 'activeSelection') {
+            obj.forEachObject(recursiveDirty);
+          }
+          return obj;
+        }
+        setTimeout(function() {
+          recursiveDirty(sel);
+          ctrl.design.renderAll();
+        }, 30);
+      }, ctrl.customProperties);
+    },
+    placeTextboxPoint: function(obj, x, y) {
+      if (!obj || obj.type !== 'textbox') {
+        return;
+      }
+      obj.pointX = x - obj.left;
+      obj.pointY = y - obj.top;
+      obj.dirty = true;
+      this.design.renderAll();
+      this.design.setActiveObject(obj);
+    },
+    saveGroupElements: function() {
+      var ctrl = this;
+      if (!this.design.getActiveObject()) {
+        return;
+      }
+      if (this.design.getActiveObject().type !== 'group') {
+        return;
+      }
+      var group = this.design.getActiveObject();
+      var data = group.toDatalessObject(this.customProperties);
+      function replaceSrc(data) {
+        data.objects.map(function(obj) {
+          if (obj.type === 'image') {
+            var img = ctrl.imgSrcs.find(src => src.src === obj.src);
+            obj.src = img.file;
+          } else if (obj.type === 'group') {
+            obj = replaceSrc(obj);
+          }
+        });
+        return data;
+      }
+      data = replaceSrc(data);
+      data = JSON.stringify(data);
+      var payload = {
+        data: data
+      }
+      
+      fetch('/library', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      }).then(function (response) {
+        return response.ok ? response.json() : Promise.reject(response);
+      }).then(this.updateLibrary).catch(function (err) {
+        console.warn('Something went wrong.', err);
+      });
+    },
+    saveImage: function() {
+      this.design.setZoom(1);
+      this.design.absolutePan({x:0, y:0});
+      this.design.discardActiveObject().renderAll();
+      var hiddenCanvas = document.getElementById('hiddenCanvas');
+      hiddenCanvas.style.display = 'block';
+      hiddenCanvas.width = this.canvasWidth;
+      hiddenCanvas.height = this.canvasHeight;
+      var copy = this.design.toCanvasElement(1, {
+        left: 100,
+        top: 100,
+        width: this.canvasWidth,
+        height: this.canvasHeight
+      });
+      var ctx = hiddenCanvas.getContext('2d');
+      ctx.drawImage(copy, 0, 0);
+      var dataUrl = hiddenCanvas.toDataURL("image/png");
+      this.url = dataUrl;
+    },
+    sendBackwards: function() {
+      var activeObject = this.design.getActiveObject();
+      if (activeObject) {
+        var background = this.design._objects[0];
+        this.design.sendBackwards(activeObject);
+        background.sendToBack();
+        this.design.renderAll();
+      }
+    },
+    sendToBack: function() {
+      var activeObject = this.design.getActiveObject();
+      if (activeObject) {
+        var background = this.design._objects[0];
+        this.design.sendToBack(activeObject);
+        background.sendToBack();
+        this.design.renderAll();
+      }
+    },
+    setCanvas: function(width, height, skip = false) {
+      if (!skip) {
+        var check = confirm('Resizing the canvas will erase the contents.');
+        if (!check) {
+          return false;
+        }
+      }
+      this.canvasWidth = width;
+      this.canvasHeight = height;
+      this.design.clear();
+      this.design.backgroundColor = 'lightgrey';
+      var rect = new fabric.Rect({
+        width: width,
+        height: height,
+        fill: 'white',
+        top: 100,
+        left: 100,
+        selectable: false,
+        hoverCursor: 'cursor',
+      });
+      this.design.add(rect);
+    },
+    startPlaceTextboxPoint: function() {
+      var obj = this.design.getActiveObject();
+      if (obj.type === 'textbox') {
+        this.design.placingPoint = obj;
+      }
+    },
+    textboxProperty: function(prop, value, obj) {
+      var ctrl = this;
+      if (!obj) {
+        obj = this.design.getActiveObject();
+      }
+      if (obj.type === 'activeSelection' || obj.type === 'group') {
+        obj._objects.forEach(function(el){
+          ctrl.textboxProperty(prop, value, el);
+        });
+      } else if (obj.type === 'textbox') {
+        obj[prop] = value;
+        obj.dirty = true;
+      }
+      this.design.renderAll();
+    },
+    ungroupElements: function() {
+      if (!this.design.getActiveObject()) {
+        return;
+      }
+      if (this.design.getActiveObject().type !== 'group' || this.design.getActiveObject().isMasked) {
+        return;
+      }
+      this.design.getActiveObject().toActiveSelection();
+      this.design.requestRenderAll();
+      this.updateActiveSelectionType();
+    },
+    unmaskElements: function() {
+      var active = this.design.getActiveObject();
+      if (!active || !active.isMasked) {
+        return;
+      }
+      active._objects[1].globalCompositeOperation = 'source-over';
+      active.isMasked = false;
+      this.ungroupElements();
+      this.design.renderAll();
+    },
+    updateActiveSelectionType: function() {
+      var active = this.design.getActiveObject();
+      this.activeSelectionType = active ? active.type : undefined;
+      if (active && active.type === 'activeSelection' && active._objects) {
+        this.activeSelectionCount = active._objects.length;
+      } else if (active) {
+        this.activeSelectionCount = 1;
+      } else {
+        this.activeSelectionCount = 0;
+      }
+      if (active && active.isMasked) {
+        this.activeSelectionMasked = true;
+      } else {
+        this.activeSelectionMasked = false;
+      }
+    },
+    updateLibrary: function(data) {
+      var ctrl = this;
+      function replaceSrc(data) {
+        data.objects.map(function(obj) {
+          if (obj.type === 'image') {
+            var img = ctrl.imgSrcs.find(src => src.file === obj.src);
+            obj.src = img.src;
+          } else if (obj.type === 'group') {
+            obj = replaceSrc(obj);
+          }
+        });
+        return data;
+      }
+      var ids = [];
+      data = data.map(function(obj) {
+        ids.push(obj.id);
+        var obj = JSON.parse(obj.data);
+        obj = replaceSrc(obj);
+        return obj;
+      });
+      fabric.util.enlivenObjects(data, function(objects) {
+        objects.forEach(function(obj, i) {
+          console.log(obj);
+          obj.libraryId = ids[i];
+        });
+        ctrl.libraryElements = objects;
+      });
     }
+  },
+  mounted() {
+    var ctrl = this;
+    
+    /*convert library svg/xml into images*/
+    var images = document.querySelectorAll('.draggableImage');
+    var imgSrcs = [];
+    /*convert all svg xml into images*/
+    [].forEach.call(images, function(div) {
+      var src = div.dataset.src;
+      var file = div.dataset.file;
+      imgSrcs.push({src: src, file: file});
+      div.innerHTML = '<img src="' + src + '"/>';
+    });
+    this.imgSrcs = imgSrcs;
+    
+    /*start listening to keys*/
+    document.addEventListener('keydown', this.handleShortcuts);
+    
+    
+    this.design = new fabric.Canvas('design', {
+      containerClass: 'design',
+      stopContextMenu: true,
+      preserveObjectStacking: true
+    });
+    window.c = this.design;
+    
+    function startPan(event) {
+      if (event.button != 2) {
+          return;
+      }
+      var x0 = event.screenX,
+          y0 = event.screenY;
 
-    function stopPan(event) {
-      window.removeEventListener('mousemove', continuePan);
-      window.removeEventListener('mouseup', stopPan);
+      function continuePan(event) {
+          var x = event.screenX,
+              y = event.screenY;
+          ctrl.design.relativePan({
+              x: x - x0,
+              y: y - y0
+          });
+          x0 = x;
+          y0 = y;
+      }
+
+      function stopPan(event) {
+        window.removeEventListener('mousemove', continuePan);
+        window.removeEventListener('mouseup', stopPan);
+      };
+      window.addEventListener('mousemove', continuePan);
+      window.addEventListener('mouseup', stopPan);
     };
-    window.addEventListener('mousemove', continuePan);
-    window.addEventListener('mouseup', stopPan);
-};
 
+    this.design.wrapperEl.addEventListener('mousedown', startPan);
+    this.design.setWidth(document.querySelector('.design').offsetWidth-2);
+    
+    this.setCanvas(682, 270, true);
+
+    // hook up the pan and zoom
+    this.design.on('mouse:wheel', function(opt) {
+      var delta = opt.e.deltaY;
+      var zoom = ctrl.design.getZoom();
+      zoom *= 0.999 ** delta;
+      if (zoom > 20) zoom = 20;
+      if (zoom < 0.01) zoom = 0.01;
+      if (zoom > 3) {
+        zoom = 3;
+      }
+      this.setZoom(zoom);
+      ctrl.zoomValue = zoom;
+      opt.e.preventDefault();
+      opt.e.stopPropagation();
+    });
+    
+    this.design.on('mouse:down', function(opt) {
+      var evt = opt.e;
+      if (this.placingPoint) {
+        ctrl.placeTextboxPoint(this.placingPoint, evt.layerX, evt.layerY);
+        this.placingPoint = false;
+      }
+    });
+
+    /* image adding*/
+    this.design.on('drop', this.drop);
+    
+    this.design.on('selection:updated', this.updateActiveSelectionType);
+    this.design.on('selection:created', this.updateActiveSelectionType);
+    this.design.on('selection:cleared', this.updateActiveSelectionType);
+    
+  },
+  created() {
+    var ctrl = this;
+    fabric.Image.prototype.needsItsOwnCache = function() {return true};
+
+    fabric.Object.prototype.stateProperties = fabric.Object.prototype.stateProperties.concat(ctrl.customProperties);
+    fabric.Object.prototype.cacheProperties = fabric.Object.prototype.cacheProperties.concat(ctrl.customProperties);
+    
+    fetch('/library').then(function (response) {
+      return response.ok ? response.json() : Promise.reject(response);
+    })
+    .then(this.updateLibrary)
+    .catch(function (err) {
+      console.warn('Something went wrong.', err);
+    });
+  }
+}
+
+Vue.createApp(Builder).mount('#builder')
 
 /*customize textbox*/
 var originalTextboxRender = fabric.Textbox.prototype._render;
@@ -852,6 +777,8 @@ fabric.Image.prototype.renderCache = function() {
     'invert(' + this.invert + ')';
   if (this._cacheCanvas && this.dirty) {
     this._cacheContext.filter = filter;
+  } else {
+    console.log(this);
   }
   
   originalRenderCache.call(this);
@@ -879,11 +806,3 @@ fabric.Group.prototype.renderCache = function() {
   
   originalGroupRenderCache.call(this);
 }
-
-fabric.Image.prototype.needsItsOwnCache = function() {return true};
-
-fabric.Object.prototype.stateProperties = fabric.Object.prototype.stateProperties.concat(['active', 'blur', 'invert', 'isMasked']);
-fabric.Object.prototype.cacheProperties = fabric.Object.prototype.cacheProperties.concat(['active', 'blur', 'invert', 'isMasked']);
-
-fabric.Textbox.prototype.stateProperties = fabric.Textbox.prototype.stateProperties.concat(['textboxBorderSize', 'textboxBorderColor', 'radius']);
-fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat(['textboxBorderSize', 'textboxBorderColor', 'radius']);
