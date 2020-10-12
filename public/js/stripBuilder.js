@@ -664,7 +664,7 @@ function copyElement() {
   var active = design.getActiveObject();
   return design.getActiveObject().clone(function(cloned) {
     _clipboard = cloned;
-  }, ['invert', 'blur', 'perPixelTargetFind', 'isMasked']);
+  }, ['invert', 'blur', 'perPixelTargetFind', 'isMasked', 'textboxBorderSize', 'radius', 'pointX', 'pointY']);
 }
 
 function pasteElement() {
@@ -723,7 +723,7 @@ function pasteElement() {
       recursiveDirty(sel);
       design.renderAll();
     }, 30);
-  }, ['blur', 'invert', 'perPixelTargetFind', 'isMasked']);
+  }, ['blur', 'invert', 'perPixelTargetFind', 'isMasked', 'textboxBorderSize', 'radius', 'pointX', 'pointY']);
 }
 
 function startPlaceTextboxPoint() {
@@ -888,5 +888,5 @@ fabric.Image.prototype.needsItsOwnCache = function() {return true};
 fabric.Object.prototype.stateProperties = fabric.Object.prototype.stateProperties.concat(['active', 'blur', 'invert', 'isMasked']);
 fabric.Object.prototype.cacheProperties = fabric.Object.prototype.cacheProperties.concat(['active', 'blur', 'invert', 'isMasked']);
 
-fabric.Textbox.prototype.stateProperties = fabric.Textbox.prototype.stateProperties.concat(['textboxBorderSize', 'textboxBorderColor']);
-fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat(['textboxBorderSize', 'textboxBorderColor']);
+fabric.Textbox.prototype.stateProperties = fabric.Textbox.prototype.stateProperties.concat(['textboxBorderSize', 'textboxBorderColor', 'radius']);
+fabric.Textbox.prototype.cacheProperties = fabric.Textbox.prototype.cacheProperties.concat(['textboxBorderSize', 'textboxBorderColor', 'radius']);
