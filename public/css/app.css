@@ -10906,9 +10906,7 @@ a.text-dark:focus {
 .design {
   position:absolute!important;
   border: 1px solid black;
-  flex: 0.75;
-  margin-right: 25px;
-  z-index:1;
+  z-index:2;
 }
 #design{
   margin-right: 0!important;

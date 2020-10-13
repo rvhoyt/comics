@@ -46,7 +46,9 @@
   <button style="position:absolute;z-index:10" v-if="!mainView" @click="exitFrame">Back to Main Canvas</button>
   <div class="canvas-container">
     <canvas id="design" :width="pageWidth" height="600"></canvas>
-    <canvas v-for="frame in frames" :width="pageWidth" height="600" :ref="'frame' + frame.id"></canvas>
+    <div ref="framesHolder">
+    
+    </div>
     
     <div class="controls">
         <label>Zoom:
@@ -95,16 +97,17 @@
         
         <div v-if="activeSelectionType === 'textbox'">
           <button type="button" @click="startPlaceTextboxPoint()">Place text line</button>
+          <br/>
           <label>Font Size:
             <input v-model="fontSizeValue" min="1" max="81" step="1" type="range" @change="textboxProperty('fontSize', $event.target.value)"/>
           </label>
           <span>@{{fontSizeValue}}</span>
-          
+          <br/>
           <label>Border Size:
             <input v-model="borderSizeValue" min="0" max="10" step="1" type="range" @change="textboxProperty('textboxBorderSize', $event.target.value)"/>
           </label>
           <span>@{{borderSizeValue}}</span>
-          
+          <br/>
           <label>Roundness:
             <input v-model="radiusValue" min="0" max="100" step="1" type="range" @change="textboxProperty('radius', $event.target.value)"/>
           </label>

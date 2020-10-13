@@ -57,16 +57,22 @@ const Builder = {
         canvas: undefined
       };
       this.frames.push(frame);
-      setTimeout(function() {
-        frame.canvas = new fabric.Canvas(ctrl.$refs['frame' + id], {
-          containerClass: 'design',
-          stopContextMenu: true,
-          preserveObjectStacking: true
-        });
-        ctrl.$refs['frame' + id].parentElement.style.zIndex = 0;
-        ctrl.initCanvas(frame.canvas);
-        ctrl.setCanvas(width, height, true, frame.canvas);
-      }, 30);
+      var newCanvas = document.createElement('canvas');
+      frame.el = newCanvas;
+      this.$refs.framesHolder.appendChild(newCanvas);
+      newCanvas.width = this.pageWidth;
+      newCanvas.height = 600;
+      
+      frame.canvas = new fabric.Canvas(newCanvas, {
+        controlsAboveOverlay: true,
+        containerClass: 'design',
+        stopContextMenu: true,
+        preserveObjectStacking: true
+      });
+      
+      newCanvas.parentElement.style.zIndex = 0;
+      ctrl.initCanvas(frame.canvas);
+      ctrl.setCanvas(width, height, true, frame.canvas);
       this.design.add(rect);
     },
     addImage: function(src, x, y) {
@@ -169,6 +175,7 @@ const Builder = {
             if (obj.frameId === frame.placeholder.frameId) {
               frame.canvas.clear();
               frame.canvas.dispose();
+              ctrl.$refs.framesHolder.removeChild(frame.el);
               return true;
             }
           });
@@ -239,6 +246,8 @@ const Builder = {
       var y = 100 - frame.placeholder.top - (ctrl.mainCanvas.viewportTransform[5] / zoom);
       x = x * zoom;
       y = y * zoom;
+      
+      window.f = frame.canvas;
       
       frame.canvas.setZoom(zoom);
       frame.canvas.absolutePan({x:x, y:y});
@@ -421,7 +430,7 @@ const Builder = {
       
       canvas.on('mouse:dblclick', function(ev) {
         var target = ev.target;
-        if (ev.target.isFrame) {
+        if (ev.target && ev.target.isFrame) {
           ctrl.enterFrame(ev.target.frameId);
         }
       });
@@ -770,6 +779,7 @@ const Builder = {
     
     
     this.design = new fabric.Canvas('design', {
+      controlsAboveOverlay: true,
       containerClass: 'design',
       stopContextMenu: true,
       preserveObjectStacking: true
