@@ -60,7 +60,9 @@
         <button type="button" @click="setCanvas(682, 530)">Canvas Half Page</button>
         <button type="button" @click="setCanvas(682, 1050)">Canvas Full Page</button>
         <br/>
-        <button type="button" @click="addFrame(200, 250)" :disabled="!mainView">Add Broken Frame</button>
+        <button type="button" @click="addFrame(220, 250)" :disabled="!mainView">Frame 1x</button>
+        <button type="button" @click="addFrame(440, 250)" :disabled="!mainView">Frame 2x</button>
+        <button type="button" @click="addFrame(660, 250)" :disabled="!mainView">Frame 3x</button>
         <br/><br/>
         <button type="button" @click="groupElements" :disabled="activeSelectionCount < 2">Group</button>
         <button type="button" @click="ungroupElements" :disabled="activeSelectionType !== 'group'">Ungroup</button>

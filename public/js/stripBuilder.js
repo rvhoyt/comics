@@ -1,3 +1,6 @@
+let design = undefined;
+let mainCanvas = undefined;
+let frames = [];
 const Builder = {
   data() {
     return {
@@ -56,7 +59,7 @@ const Builder = {
         placeholder: rect,
         canvas: undefined
       };
-      this.frames.push(frame);
+      frames.push(frame);
       var newCanvas = document.createElement('canvas');
       frame.el = newCanvas;
       this.$refs.framesHolder.appendChild(newCanvas);
@@ -73,7 +76,7 @@ const Builder = {
       newCanvas.parentElement.style.zIndex = 0;
       ctrl.initCanvas(frame.canvas);
       ctrl.setCanvas(width, height, true, frame.canvas);
-      this.design.add(rect);
+      design.add(rect);
     },
     addImage: function(src, x, y) {
       var ctrl = this;
@@ -89,9 +92,9 @@ const Builder = {
 
         img.perPixelTargetFind = true;
 
-        ctrl.design.add(img);
-        ctrl.design.discardActiveObject();
-        ctrl.design.setActiveObject(ctrl.design._objects[ctrl.design._objects.length - 1]);
+        design.add(img);
+        design.discardActiveObject();
+        design.setActiveObject(design._objects[design._objects.length - 1]);
       });
     },
     addTextbox: function() {
@@ -118,14 +121,14 @@ const Builder = {
         tl: false,
         tr: false,
       });
-      this.design.add(textbox);
+      design.add(textbox);
     },
     blurElement: function(value, obj) {
       var ctrl = this;
       var one = false;
       if (!obj) {
         one = true;
-        obj = this.design.getActiveObject();
+        obj = design.getActiveObject();
       }
       if (!obj) {
         return;
@@ -139,39 +142,39 @@ const Builder = {
         obj.dirty = true;
       }
       if (one) {
-        this.design.renderAll();
+        design.renderAll();
       }
     },
     bringForward: function() {
-      var activeObject = this.design.getActiveObject();
+      var activeObject = design.getActiveObject();
       if (activeObject) {
-        this.design.bringForward(activeObject);
-        this.design.renderAll();
+        design.bringForward(activeObject);
+        design.renderAll();
       }
     },
     bringToFront: function() {
-      var activeObject = this.design.getActiveObject();
+      var activeObject = design.getActiveObject();
       if (activeObject) {
-        this.design.bringToFront(activeObject);
-        this.design.renderAll();
+        design.bringToFront(activeObject);
+        design.renderAll();
       }
     },
     copyElement: function() {
       var ctrl = this;
-      var active = this.design.getActiveObject();
+      var active = design.getActiveObject();
       if (!active) {
         return;
       }
-      return this.design.getActiveObject().clone(function(cloned) {
+      return design.getActiveObject().clone(function(cloned) {
         ctrl._clipboard = cloned;
       }, ctrl.customProperties);
     },
     deleteElements: function() {
       var ctrl = this;
-      var activeObject = this.design.getActiveObjects();
+      var activeObject = design.getActiveObjects();
       activeObject.forEach(function(obj) {
         if (obj.isFrame) {
-          ctrl.frames.some(function(frame, i, a) {
+          frames.some(function(frame, i, a) {
             if (obj.frameId === frame.placeholder.frameId) {
               frame.canvas.clear();
               frame.canvas.dispose();
@@ -181,9 +184,9 @@ const Builder = {
           });
         }
       });
-      this.design.discardActiveObject();
-      this.design.remove(...activeObject);
-      this.design.renderAll();
+      design.discardActiveObject();
+      design.remove(...activeObject);
+      design.renderAll();
     },
     deleteLibrary: function(id) {
       var check = confirm('Are you sure you want to delete this library element?');
@@ -206,9 +209,9 @@ const Builder = {
     },
     drop: function(ev) {
       var ctrl = this;
-      var zoom = ctrl.design.getZoom();
-      var shiftX = ctrl.design.viewportTransform[4];
-      var shiftY = ctrl.design.viewportTransform[5]; 
+      var zoom = design.getZoom();
+      var shiftX = design.viewportTransform[4];
+      var shiftY = design.viewportTransform[5]; 
       ev.e.preventDefault();
       var src = ev.e.dataTransfer.getData("src");
       var library = ev.e.dataTransfer.getData("library");
@@ -220,8 +223,8 @@ const Builder = {
         src = this.libraryElements[library].clone(function(clone) {
           clone.top = y / zoom;
           clone.left = x / zoom;
-          ctrl.design.add(clone);
-          ctrl.design.setActiveObject(clone);
+          design.add(clone);
+          design.setActiveObject(clone);
           ctrl.ungroupElements();
           ctrl.groupElements();
         }, ctrl.customProperties);
@@ -235,15 +238,15 @@ const Builder = {
     },
     enterFrame: function(id) {
       var ctrl = this;
-      var frame = this.frames.find((frame) => frame.id === id);
-      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '1';
-      ctrl.design = frame.canvas;
-      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '2';
+      var frame = frames.find((frame) => frame.id === id);
+      design.lowerCanvasEl.parentElement.style.zIndex = '1';
+      design = frame.canvas;
+      design.lowerCanvasEl.parentElement.style.zIndex = '2';
       ctrl.frameView = id;
       ctrl.mainView = false;
-      var zoom = ctrl.mainCanvas.getZoom();
-      var x = 100 - frame.placeholder.left - (ctrl.mainCanvas.viewportTransform[4] / zoom);
-      var y = 100 - frame.placeholder.top - (ctrl.mainCanvas.viewportTransform[5] / zoom);
+      var zoom = mainCanvas.getZoom();
+      var x = 100 - frame.placeholder.left - (mainCanvas.viewportTransform[4] / zoom);
+      var y = 100 - frame.placeholder.top - (mainCanvas.viewportTransform[5] / zoom);
       x = x * zoom;
       y = y * zoom;
       
@@ -254,10 +257,10 @@ const Builder = {
     },
     exitFrame: function() {
       var ctrl = this;
-      var frame = this.frames.find((frame) => frame.id === ctrl.frameView);
+      var frame = frames.find((frame) => frame.id === ctrl.frameView);
       frame.canvas.setZoom(1);
       frame.canvas.absolutePan({x:0, y:0});
-      var img = this.design.toCanvasElement(1, {
+      var img = design.toCanvasElement(1, {
         left: 100,
         top: 100,
         width: frame.placeholder.width,
@@ -268,14 +271,14 @@ const Builder = {
         repeat: 'no-repeat'
       });
       frame.placeholder.dirty = true;
-      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '0';
-      ctrl.design = ctrl.mainCanvas;
-      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '2';
+      design.lowerCanvasEl.parentElement.style.zIndex = '0';
+      design = mainCanvas;
+      design.lowerCanvasEl.parentElement.style.zIndex = '2';
       ctrl.mainView = true;
-      ctrl.design.renderAll();
+      design.renderAll();
     },
     flipMask: function() {
-      var active = this.design.getActiveObject();
+      var active = design.getActiveObject();
       if (!active || !active.isMasked) {
         return;
       }
@@ -285,20 +288,20 @@ const Builder = {
         active._objects[1].globalCompositeOperation = 'source-out';
       }
       active.dirty = true;
-      this.design.renderAll();
+      design.renderAll();
     },
     flipX: function() {
-      var obj = this.design.getActiveObject();
+      var obj = design.getActiveObject();
       obj.flipX = !obj.flipX;
-      this.design.renderAll();
+      design.renderAll();
     },
     flipY: function() {
-      var obj = this.design.getActiveObject();
+      var obj = design.getActiveObject();
       obj.flipY = !obj.flipY;
-      this.design.renderAll();
+      design.renderAll();
     },
     groupElements: function() {
-      var active = this.design.getActiveObject();
+      var active = design.getActiveObject();
       if (!active) {
         return;
       }
@@ -321,7 +324,7 @@ const Builder = {
         return obj;
       }
       g = handleMasks(g);
-      this.design.requestRenderAll();
+      design.requestRenderAll();
       this.updateActiveSelectionType();
     },
     handleShortcuts: function(e) {
@@ -334,36 +337,36 @@ const Builder = {
         this.pasteElement();
       } else if (e.which === 40) {
         /*down*/
-        var obj = this.design.getActiveObject();
+        var obj = design.getActiveObject();
         obj.top++;
         if (e.shiftKey) {
           obj.top += 9;
         }
-        this.design.renderAll();
+        design.renderAll();
       } else if (e.which === 39) {
         /*right*/
-        var obj = this.design.getActiveObject();
+        var obj = design.getActiveObject();
         obj.left++;
         if (e.shiftKey) {
           obj.left += 9;
         }
-        this.design.renderAll();
+        design.renderAll();
       } else if (e.which === 38) {
         /*up*/
-        var obj = this.design.getActiveObject();
+        var obj = design.getActiveObject();
         obj.top--;
         if (e.shiftKey) {
           obj.top -= 9;
         }
-        this.design.renderAll();
+        design.renderAll();
       } else if (e.which === 37) {
         /*left*/
-        var obj = this.design.getActiveObject();
+        var obj = design.getActiveObject();
         obj.left--;
         if (e.shiftKey) {
           obj.left -= 9;
         }
-        this.design.renderAll();
+        design.renderAll();
       }
     },
     initCanvas: function(canvas) {
@@ -383,7 +386,7 @@ const Builder = {
               y: y - y0
             });
             if (!ctrl.mainView) {
-              ctrl.mainCanvas.relativePan({
+              mainCanvas.relativePan({
                 x: x - x0,
                 y: y - y0
               });
@@ -404,7 +407,7 @@ const Builder = {
       // hook up the pan and zoom
       canvas.on('mouse:wheel', function(opt) {
         var delta = opt.e.deltaY;
-        var zoom = ctrl.design.getZoom();
+        var zoom = design.getZoom();
         zoom *= 0.999 ** delta;
         if (zoom > 20) zoom = 20;
         if (zoom < 0.01) zoom = 0.01;
@@ -413,7 +416,7 @@ const Builder = {
         }
         this.setZoom(zoom);
         if (!ctrl.mainView) {
-          ctrl.mainCanvas.setZoom(zoom);
+          mainCanvas.setZoom(zoom);
         }
         ctrl.zoomValue = zoom;
         opt.e.preventDefault();
@@ -448,7 +451,7 @@ const Builder = {
       var one = false;
       if (!obj) {
         one = true;
-        obj = this.design.getActiveObject();
+        obj = design.getActiveObject();
       }
       if (obj.type === 'activeSelection') {
         obj.forEachObject(function(el){
@@ -459,26 +462,26 @@ const Builder = {
         obj.dirty = true;
       }
       if (one) {
-        this.design.renderAll();
+        design.renderAll();
       }
     },
     maskElements: function() {
-      var active = this.design.getActiveObject();
+      var active = design.getActiveObject();
       if (active._objects.length !== 2) {
         return;
       }
       this.groupElements();
-      active = this.design.getActiveObject();
+      active = design.getActiveObject();
       active.isMasked = true;
       active._objects[1].globalCompositeOperation = 'source-out';
-      this.design.discardActiveObject();
-      this.design.renderAll();
+      design.discardActiveObject();
+      design.renderAll();
       this.updateActiveSelectionType();
     },
     opacityElement: function(value, obj) {
       var ctrl = this;
       if (!obj) {
-        obj = this.design.getActiveObject();
+        obj = design.getActiveObject();
       }
       if (obj.type === 'activeSelection') {
         obj._objects.forEach(function(el){
@@ -487,7 +490,7 @@ const Builder = {
       } else {
         obj.opacity = value;
       }
-      this.design.renderAll();
+      design.renderAll();
     },
     pasteElement: function() {
       var ctrl = this;
@@ -517,24 +520,24 @@ const Builder = {
         }
         if (clonedObj.type === 'activeSelection') {
           // active selection needs a reference to the canvas.
-          clonedObj.canvas = ctrl.design;
+          clonedObj.canvas = design;
           clonedObj = recursiveSet(clonedObj, ctrl._clipboard);
           clonedObj.forEachObject(function(obj, i) {
             objs.push(obj);
-            ctrl.design.add(obj);
+            design.add(obj);
           });
         } else {
           clonedObj = recursiveSet(clonedObj, ctrl._clipboard);
           objs.push(clonedObj);
-          ctrl.design.add(clonedObj);
+          design.add(clonedObj);
         }
         ctrl._clipboard.top += 10;
         ctrl._clipboard.left += 10;
         var sel = new fabric.ActiveSelection(objs, {
-          canvas: ctrl.design,
+          canvas: design,
         });
-        ctrl.design.discardActiveObject();
-        ctrl.design.setActiveObject(sel);
+        design.discardActiveObject();
+        design.setActiveObject(sel);
         function recursiveDirty(obj) {
           obj.dirty = true;
           if (obj.type === 'group' || obj.type === 'activeSelection') {
@@ -544,7 +547,7 @@ const Builder = {
         }
         setTimeout(function() {
           recursiveDirty(sel);
-          ctrl.design.renderAll();
+          design.renderAll();
         }, 30);
       }, ctrl.customProperties);
     },
@@ -555,18 +558,18 @@ const Builder = {
       obj.pointX = x - obj.left;
       obj.pointY = y - obj.top;
       obj.dirty = true;
-      this.design.renderAll();
-      this.design.setActiveObject(obj);
+      design.renderAll();
+      design.setActiveObject(obj);
     },
     saveGroupElements: function() {
       var ctrl = this;
-      if (!this.design.getActiveObject()) {
+      if (!design.getActiveObject()) {
         return;
       }
-      if (this.design.getActiveObject().type !== 'group') {
+      if (design.getActiveObject().type !== 'group') {
         return;
       }
-      var group = this.design.getActiveObject();
+      var group = design.getActiveObject();
       var data = group.toDatalessObject(this.customProperties);
       function replaceSrc(data) {
         data.objects.map(function(obj) {
@@ -595,14 +598,14 @@ const Builder = {
       });
     },
     saveImage: function() {
-      this.design.setZoom(1);
-      this.design.absolutePan({x:0, y:0});
-      this.design.discardActiveObject().renderAll();
+      design.setZoom(1);
+      design.absolutePan({x:0, y:0});
+      design.discardActiveObject().renderAll();
       var hiddenCanvas = document.getElementById('hiddenCanvas');
       hiddenCanvas.style.display = 'block';
       hiddenCanvas.width = this.canvasWidth;
       hiddenCanvas.height = this.canvasHeight;
-      var copy = this.design.toCanvasElement(1, {
+      var copy = design.toCanvasElement(1, {
         left: 100,
         top: 100,
         width: this.canvasWidth,
@@ -614,21 +617,21 @@ const Builder = {
       this.url = dataUrl;
     },
     sendBackwards: function() {
-      var activeObject = this.design.getActiveObject();
+      var activeObject = design.getActiveObject();
       if (activeObject) {
-        var background = this.design._objects[0];
-        this.design.sendBackwards(activeObject);
+        var background = design._objects[0];
+        design.sendBackwards(activeObject);
         background.sendToBack();
-        this.design.renderAll();
+        design.renderAll();
       }
     },
     sendToBack: function() {
-      var activeObject = this.design.getActiveObject();
+      var activeObject = design.getActiveObject();
       if (activeObject) {
-        var background = this.design._objects[0];
-        this.design.sendToBack(activeObject);
+        var background = design._objects[0];
+        design.sendToBack(activeObject);
         background.sendToBack();
-        this.design.renderAll();
+        design.renderAll();
       }
     },
     setCanvas: function(width, height, skip = false, canvas = undefined) {
@@ -637,16 +640,16 @@ const Builder = {
         if (!check) {
           return false;
         }
-        this.frames.forEach(function(frame) {
+        frames.forEach(function(frame) {
           frame.canvas.dispose();
         });
-        this.frames = [];
+        frames = [];
       }
       var transparency = false;
       if (!canvas) {
         this.canvasWidth = width;
         this.canvasHeight = height;
-        canvas = this.design;
+        canvas = design;
         transparency = true;
         canvas.lowerCanvasEl.parentElement.style.zIndex = '2';
       }
@@ -667,15 +670,15 @@ const Builder = {
       canvas.add(rect);
     },
     startPlaceTextboxPoint: function() {
-      var obj = this.design.getActiveObject();
+      var obj = design.getActiveObject();
       if (obj.type === 'textbox') {
-        this.design.placingPoint = obj;
+        design.placingPoint = obj;
       }
     },
     textboxProperty: function(prop, value, obj) {
       var ctrl = this;
       if (!obj) {
-        obj = this.design.getActiveObject();
+        obj = design.getActiveObject();
       }
       if (obj.type === 'activeSelection' || obj.type === 'group') {
         obj._objects.forEach(function(el){
@@ -685,31 +688,31 @@ const Builder = {
         obj[prop] = value;
         obj.dirty = true;
       }
-      this.design.renderAll();
+      design.renderAll();
     },
     ungroupElements: function() {
-      if (!this.design.getActiveObject()) {
+      if (!design.getActiveObject()) {
         return;
       }
-      if (this.design.getActiveObject().type !== 'group' || this.design.getActiveObject().isMasked) {
+      if (design.getActiveObject().type !== 'group' || design.getActiveObject().isMasked) {
         return;
       }
-      this.design.getActiveObject().toActiveSelection();
-      this.design.requestRenderAll();
+      design.getActiveObject().toActiveSelection();
+      design.requestRenderAll();
       this.updateActiveSelectionType();
     },
     unmaskElements: function() {
-      var active = this.design.getActiveObject();
+      var active = design.getActiveObject();
       if (!active || !active.isMasked) {
         return;
       }
       active._objects[1].globalCompositeOperation = 'source-over';
       active.isMasked = false;
       this.ungroupElements();
-      this.design.renderAll();
+      design.renderAll();
     },
     updateActiveSelectionType: function() {
-      var active = this.design.getActiveObject();
+      var active = design.getActiveObject();
       this.activeSelectionType = active ? active.type : undefined;
       if (active && active.type === 'activeSelection' && active._objects) {
         this.activeSelectionCount = active._objects.length;
@@ -723,7 +726,7 @@ const Builder = {
       } else {
         this.activeSelectionMasked = false;
       }
-      var objs = this.design.getActiveObjects();
+      var objs = design.getActiveObjects();
       this.opacityValue = objs.length ? objs.map((a) => parseFloat(a.opacity)).reduce((a, b) => a + b) / objs.length : 1;
       this.blurValue = objs.length ? objs.map((a) => parseFloat(a.blur)).reduce((a, b) => a + b) / objs.length : 0;
       this.fontFamilyValue = objs[0] ? objs[0].fontFamilyValue : 'Verdana';
@@ -778,17 +781,17 @@ const Builder = {
     document.addEventListener('keydown', this.handleShortcuts);
     
     
-    this.design = new fabric.Canvas('design', {
+    design = new fabric.Canvas('design', {
       controlsAboveOverlay: true,
       containerClass: 'design',
       stopContextMenu: true,
       preserveObjectStacking: true
     });
-    this.mainCanvas = this.design;
-    window.c = this.design;
+    mainCanvas = design;
+    window.c = design;
     
     this.setCanvas(682, 270, true);
-    this.initCanvas(this.design);
+    this.initCanvas(design);
   },
   created() {
     var ctrl = this;
