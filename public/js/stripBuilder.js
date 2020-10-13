@@ -38,12 +38,16 @@ const Builder = {
     pageWidth: () => document.body.clientWidth - 250
   },
   methods: {
-    addFrame: function(width, height) {
+    addFrame: function(width, height, x, y) {
+      if (!x) {
+        x = 105;
+        y = 105;
+      }
       var ctrl = this;
       var id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       var rect = new fabric.Rect({
-        top: 110,
-        left: 110,
+        top: x,
+        left: y,
         width: width,
         height: height,
         stroke: 'black',
@@ -643,6 +647,7 @@ const Builder = {
       }
     },
     setCanvas: function(width, height, skip = false, canvas = undefined) {
+      var ctrl = this;
       if (!skip) {
         var check = confirm('Resizing the canvas will erase the contents.');
         if (!check) {
@@ -650,6 +655,7 @@ const Builder = {
         }
         frames.forEach(function(frame) {
           frame.canvas.dispose();
+          ctrl.$refs.framesHolder.removeChild(frame.el);
         });
         frames = [];
       }
