@@ -227,6 +227,8 @@ const Builder = {
     exitFrame: function() {
       var ctrl = this;
       var frame = this.frames.find((frame) => frame.id === ctrl.frameView);
+      frame.canvas.setZoom(1);
+      frame.canvas.absolutePan({x:0, y:0});
       var img = this.design.toCanvasElement(1, {
         left: 100,
         top: 100,
