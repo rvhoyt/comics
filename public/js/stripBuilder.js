@@ -4,14 +4,20 @@ const Builder = {
       activeSelectionCount: 0,
       activeSelectionMasked: false,
       activeSelectionType: undefined,
+      borderSizeValue: 0,
+      blurValue: 1,
       canvas: undefined,
       canvasHeight: undefined,
       canvasWidth: undefined,
       customProperties: ['active', 'blur', 'invert', 'isMasked', 'textboxBorderSize', 'textboxBorderColor', 'radius', 'pointX', 'pointY'],
       description: '',
+      fontFamilyValue: 'Verdana',
+      fontSizeValue: 12,
       imgSrcs: [],
       libraryElements: [],
       libaryFolders: ['Items', 'Shapes', 'Characters', 'Library'],
+      opacityValue: 1,
+      radiusValue: 0,
       selectedFolder: 'Items',
       title: '',
       url: '',
@@ -19,48 +25,7 @@ const Builder = {
     }
   },
   computed: {
-    blurValue: function() {
-      if (!this.activeSelectionCount) {
-        return 0;
-      }
-      var objs = this.design.getActiveObjects();
-      return objs.map((a) => a.blur).reduce((a, b) => (a + b)) / objs.length;
-    },
-    borderSizeValue: function() {
-      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
-        return 0;
-      }
-      var objs = this.design.getActiveObjects();
-      return objs[0].textboxBorderSize;
-    },
-    fontFamilyValue: function() {
-      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
-        return 'Verdana';
-      }
-      var objs = this.design.getActiveObjects();
-      return objs[0].fontFamily;
-    },
-    fontSizeValue: function() {
-      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
-        return 0;
-      }
-      var objs = this.design.getActiveObjects();
-      return objs[0].fontSize;
-    },
-    opacityValue: function() {
-      if (!this.activeSelectionCount) {
-        return 0;
-      }
-      var objs = this.design.getActiveObjects();
-      return objs.map((a) => a.opacity).reduce((a, b) => (a + b)) / objs.length;
-    },
-    radiusValue: function() {
-      if (!this.activeSelectionCount || this.activeSelectionType !== 'textbox') {
-        return 0;
-      }
-      var objs = this.design.getActiveObjects();
-      return objs[0].radius;
-    }
+
   },
   methods: {
     addImage: function(src, x, y) {
@@ -118,10 +83,7 @@ const Builder = {
       if (!obj) {
         return;
       }
-      if (obj.type === 'textbox') {
-        obj.blur = value * 10;
-        obj.dirty = true;
-      } else if (obj.type === 'activeSelection') {
+      if (obj.type === 'activeSelection') {
         obj.forEachObject(function(el){
           ctrl.blurElement(value, el);
         });
@@ -558,6 +520,13 @@ const Builder = {
       } else {
         this.activeSelectionMasked = false;
       }
+      var objs = this.design.getActiveObjects();
+      this.opacityValue = objs.length ? objs.map((a) => parseFloat(a.opacity)).reduce((a, b) => a + b) / objs.length : 1;
+      this.blurValue = objs.length ? objs.map((a) => parseFloat(a.blur)).reduce((a, b) => a + b) / objs.length : 0;
+      this.fontFamilyValue = objs[0] ? objs[0].fontFamilyValue : 'Verdana';
+      this.fontSizeValue = objs[0] ? objs[0].fontSize : 12;
+      this.radius = objs[0] ? objs[0].radius : 0;
+      this.borderSizeValue = objs[0] ? objs[0].textboxBorderSize : 1;
     },
     updateLibrary: function(data) {
       var ctrl = this;
@@ -699,7 +668,7 @@ Vue.createApp(Builder).mount('#builder')
 var originalTextboxRender = fabric.Textbox.prototype._render;
 fabric.Textbox.prototype._render = function(ctx) {
   
-  ctx.filter = 'blur(' + this.blur + 'px)';
+  ctx.filter = 'blur(' + this.blur * 10 + 'px)';
   
   if (this.invert) {
     this.fill = 'white';

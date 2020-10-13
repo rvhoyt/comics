@@ -66,12 +66,14 @@
         <button type="button" @click="saveGroupElements" :disabled="activeSelectionType !== 'group'">Save to Library</button>
         <br/>
         <label>Blur:
-          <input :value="blurValue" min="0" max="3" step="0.01" type="range" @change="blurElement($event.target.value)"/>
+          <input v-model="blurValue" min="0" max="3" step="0.01" type="range" @change="blurElement($event.target.value)"/>
         </label>
+        <span>@{{(blurValue * 100).toFixed(0)}}%</span>
         <br/>
         <label>Opacity:
-          <input :value="opacityValue" min="0" max="1" step="0.01" type="range" @change="opacityElement($event.target.value)"/>
+          <input v-model="opacityValue" min="0" max="1" step="0.01" type="range" @change="opacityElement($event.target.value)"/>
         </label>
+        <span>@{{(opacityValue * 100).toFixed(0)}}%</span>
         <br/>
         <button type="button" @click="duplicateElement()" :disabled="!activeSelectionCount">Duplicate</button>
         <button type="button" @click="deleteElements()" :disabled="!activeSelectionCount">Delete</button>
@@ -91,16 +93,19 @@
         <div v-if="activeSelectionType === 'textbox'">
           <button type="button" @click="startPlaceTextboxPoint()">Place text line</button>
           <label>Font Size:
-            <input :value="fontSizeValue" min="1" max="81" step="1" type="range" @change="textboxProperty('fontSize', $event.target.value)"/>
+            <input v-model="fontSizeValue" min="1" max="81" step="1" type="range" @change="textboxProperty('fontSize', $event.target.value)"/>
           </label>
+          <span>@{{fontSizeValue}}</span>
           
           <label>Border Size:
-            <input :value="borderSizeValue" min="0" max="10" step="1" type="range" @change="textboxProperty('textboxBorderSize', $event.target.value)"/>
+            <input v-model="borderSizeValue" min="0" max="10" step="1" type="range" @change="textboxProperty('textboxBorderSize', $event.target.value)"/>
           </label>
+          <span>@{{borderSizeValue}}</span>
           
           <label>Roundness:
-            <input :value="radiusValue" min="0" max="100" step="1" type="range" @change="textboxProperty('radius', $event.target.value)"/>
+            <input v-model="radiusValue" min="0" max="100" step="1" type="range" @change="textboxProperty('radius', $event.target.value)"/>
           </label>
+          <span>@{{radiusValue}}</span>
           
           <br/>
           <button @click="textboxProperty('textAlign', 'left')" type="button">Left</button>
