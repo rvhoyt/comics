@@ -183,6 +183,7 @@ const Builder = {
               frame.canvas.clear();
               frame.canvas.dispose();
               ctrl.$refs.framesHolder.removeChild(frame.el);
+              a.splice(i, 1);
               return true;
             }
           });
