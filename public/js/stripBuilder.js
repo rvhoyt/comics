@@ -328,14 +328,19 @@ const Builder = {
       this.updateActiveSelectionType();
     },
     handleShortcuts: function(e) {
-      if ((e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT') && (e.which === 8 || e.which === 46)) {
+      if (e.path[0].type === 'textarea' || e.path[0].tagName === 'INPUT') {
+        return;
+      } else if ((e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT') && (e.which === 8 || e.which === 46)) {
         e.preventDefault();
         this.deleteElements();
       } else if (e.which === 67 && e.ctrlKey) {
         this.copyElement();
+        e.preventDefault();
       } else if (e.which === 86 && e.ctrlKey && (e.path[0].type !== 'textarea' && e.path[0].tagName !== 'INPUT')) {
         this.pasteElement();
+        e.preventDefault();
       } else if (e.which === 40) {
+        e.preventDefault();
         /*down*/
         var obj = design.getActiveObject();
         obj.top++;
@@ -344,6 +349,7 @@ const Builder = {
         }
         design.renderAll();
       } else if (e.which === 39) {
+        e.preventDefault();
         /*right*/
         var obj = design.getActiveObject();
         obj.left++;
@@ -352,6 +358,7 @@ const Builder = {
         }
         design.renderAll();
       } else if (e.which === 38) {
+        e.preventDefault();
         /*up*/
         var obj = design.getActiveObject();
         obj.top--;
@@ -360,6 +367,7 @@ const Builder = {
         }
         design.renderAll();
       } else if (e.which === 37) {
+        e.preventDefault();
         /*left*/
         var obj = design.getActiveObject();
         obj.left--;
