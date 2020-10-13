@@ -35,11 +35,9 @@ const Builder = {
 
   },
   methods: {
-    addFrame: function() {
+    addFrame: function(width, height) {
       var ctrl = this;
       var id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      var width = 200;
-      height = 250;
       var rect = new fabric.Rect({
         top: 110,
         left: 110,
@@ -308,21 +306,33 @@ const Builder = {
         /*down*/
         var obj = this.design.getActiveObject();
         obj.top++;
+        if (e.shiftKey) {
+          obj.top += 9;
+        }
         this.design.renderAll();
       } else if (e.which === 39) {
         /*right*/
         var obj = this.design.getActiveObject();
         obj.left++;
+        if (e.shiftKey) {
+          obj.left += 9;
+        }
         this.design.renderAll();
       } else if (e.which === 38) {
         /*up*/
         var obj = this.design.getActiveObject();
         obj.top--;
+        if (e.shiftKey) {
+          obj.top -= 9;
+        }
         this.design.renderAll();
       } else if (e.which === 37) {
         /*left*/
         var obj = this.design.getActiveObject();
         obj.left--;
+        if (e.shiftKey) {
+          obj.left -= 9;
+        }
         this.design.renderAll();
       }
     },
@@ -393,6 +403,7 @@ const Builder = {
       canvas.on('selection:updated', this.updateActiveSelectionType);
       canvas.on('selection:created', this.updateActiveSelectionType);
       canvas.on('selection:cleared', this.updateActiveSelectionType);
+      
     },
     invertElement: function(obj) {
       var ctrl = this;
@@ -843,6 +854,9 @@ fabric.Image.prototype._updateCacheCanvas = function() {
   var returnVal = _updateCacheCanvas.call(this);
   var newVal = this.zoomX;
   if (oldVal !== newVal) {
+    this._cacheContext.filter = filter;
+  }
+  if (this._cacheContext.filter !== filter) {
     this._cacheContext.filter = filter;
   }
   return returnVal;
