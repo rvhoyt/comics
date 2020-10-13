@@ -32,7 +32,7 @@ const Builder = {
 
   },
   computed: {
-
+    pageWidth: () => document.body.clientWidth
   },
   methods: {
     addFrame: function(width, height) {
@@ -63,10 +63,9 @@ const Builder = {
           stopContextMenu: true,
           preserveObjectStacking: true
         });
-        ctrl.$refs['frame' + id].parentElement.style.display = 'none';
+        ctrl.$refs['frame' + id].parentElement.style.zIndex = 0;
         ctrl.initCanvas(frame.canvas);
         ctrl.setCanvas(width, height, true, frame.canvas);
-        frame.canvas.upperCanvasEl.style.display = 'block';
       }, 30);
       this.design.add(rect);
     },
@@ -162,7 +161,19 @@ const Builder = {
       }, ctrl.customProperties);
     },
     deleteElements: function() {
+      var ctrl = this;
       var activeObject = this.design.getActiveObjects();
+      activeObject.forEach(function(obj) {
+        if (obj.isFrame) {
+          ctrl.frames.some(function(frame, i, a) {
+            if (obj.frameId === frame.placeholder.frameId) {
+              frame.canvas.clear();
+              frame.canvas.dispose();
+              return true;
+            }
+          });
+        }
+      });
       this.design.discardActiveObject();
       this.design.remove(...activeObject);
       this.design.renderAll();
@@ -218,11 +229,19 @@ const Builder = {
     enterFrame: function(id) {
       var ctrl = this;
       var frame = this.frames.find((frame) => frame.id === id);
-      ctrl.design.lowerCanvasEl.parentElement.style.display = 'none';
+      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '1';
       ctrl.design = frame.canvas;
-      ctrl.design.lowerCanvasEl.parentElement.style.display = 'flex';
+      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '2';
       ctrl.frameView = id;
       ctrl.mainView = false;
+      var zoom = ctrl.mainCanvas.getZoom();
+      var x = 100 - frame.placeholder.left - (ctrl.mainCanvas.viewportTransform[4] / zoom);
+      var y = 100 - frame.placeholder.top - (ctrl.mainCanvas.viewportTransform[5] / zoom);
+      x = x * zoom;
+      y = y * zoom;
+      
+      frame.canvas.setZoom(zoom);
+      frame.canvas.absolutePan({x:x, y:y});
     },
     exitFrame: function() {
       var ctrl = this;
@@ -240,9 +259,9 @@ const Builder = {
         repeat: 'no-repeat'
       });
       frame.placeholder.dirty = true;
-      ctrl.design.lowerCanvasEl.parentElement.style.display = 'none';
+      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '0';
       ctrl.design = ctrl.mainCanvas;
-      ctrl.design.lowerCanvasEl.parentElement.style.display = 'flex';
+      ctrl.design.lowerCanvasEl.parentElement.style.zIndex = '2';
       ctrl.mainView = true;
       ctrl.design.renderAll();
     },
@@ -351,9 +370,15 @@ const Builder = {
             var x = event.screenX,
                 y = event.screenY;
             canvas.relativePan({
+              x: x - x0,
+              y: y - y0
+            });
+            if (!ctrl.mainView) {
+              ctrl.mainCanvas.relativePan({
                 x: x - x0,
                 y: y - y0
-            });
+              });
+            }
             x0 = x;
             y0 = y;
         }
@@ -367,7 +392,6 @@ const Builder = {
       };
       
       canvas.wrapperEl.addEventListener('mousedown', startPan);
-      canvas.setWidth(document.querySelector('.design').offsetWidth-2);
       // hook up the pan and zoom
       canvas.on('mouse:wheel', function(opt) {
         var delta = opt.e.deltaY;
@@ -379,6 +403,9 @@ const Builder = {
           zoom = 3;
         }
         this.setZoom(zoom);
+        if (!ctrl.mainView) {
+          ctrl.mainCanvas.setZoom(zoom);
+        }
         ctrl.zoomValue = zoom;
         opt.e.preventDefault();
         opt.e.stopPropagation();
@@ -601,14 +628,23 @@ const Builder = {
         if (!check) {
           return false;
         }
+        this.frames.forEach(function(frame) {
+          frame.canvas.dispose();
+        });
+        this.frames = [];
       }
+      var transparency = false;
       if (!canvas) {
         this.canvasWidth = width;
         this.canvasHeight = height;
         canvas = this.design;
+        transparency = true;
       }
       canvas.clear();
-      canvas.backgroundColor = 'lightgrey';
+      canvas.backgroundColor = 'rgb(211,211,211, 0.5)';
+      if (transparency) {
+        canvas.backgroundColor = 'lightgrey';
+      }
       var rect = new fabric.Rect({
         width: width,
         height: height,

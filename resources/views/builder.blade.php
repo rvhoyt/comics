@@ -43,10 +43,10 @@
     </div>
   </div>
   
-  <button v-if="!mainView" @click="exitFrame">Back to Main Canvas</button>
+  <button style="position:absolute;z-index:10" v-if="!mainView" @click="exitFrame">Back to Main Canvas</button>
   <div class="canvas-container">
-    <canvas id="design" width="1000" height="600" v-show="mainView"></canvas>
-    <canvas v-show="!mainView && frameView === frame.id" v-for="frame in frames" height="600" :ref="'frame' + frame.id"></canvas>
+    <canvas id="design" :width="pageWidth" height="600" style="zIndex:2"></canvas>
+    <canvas v-for="frame in frames" :width="pageWidth" height="600" :ref="'frame' + frame.id"></canvas>
     
     <div class="controls">
         <label>Zoom:

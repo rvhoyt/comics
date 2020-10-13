@@ -10904,9 +10904,11 @@ a.text-dark:focus {
 }
 
 .design {
+  position:absolute!important;
   border: 1px solid black;
   flex: 0.75;
   margin-right: 25px;
+  z-index:1;
 }
 #design{
   margin-right: 0!important;
@@ -10937,11 +10939,16 @@ a.text-dark:focus {
   float:right;
 }
 .controls{
-  flex: 0.15;
+  position:absolute;
+  right:0;
+  padding: 20px;
+  z-index: 5;
   min-width: 250px;
+  min-height: 600px;
+  background: white;
 }
 .canvas-container{
-  display:flex;
+  min-height: 600px;
 }
 .drawer{
   width: 100%;
