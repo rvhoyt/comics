@@ -10949,6 +10949,11 @@ a.text-dark:focus {
 }
 .canvas-container{
   min-height: 600px;
+  width: 100%;
+  position:relative;
+}
+.canvas-spacer{
+  height: 600px;
 }
 .drawer{
   width: 100%;

@@ -32,7 +32,7 @@ const Builder = {
 
   },
   computed: {
-    pageWidth: () => document.body.clientWidth
+    pageWidth: () => document.body.clientWidth - 250
   },
   methods: {
     addFrame: function(width, height) {
@@ -639,6 +639,7 @@ const Builder = {
         this.canvasHeight = height;
         canvas = this.design;
         transparency = true;
+        canvas.lowerCanvasEl.parentElement.style.zIndex = '2';
       }
       canvas.clear();
       canvas.backgroundColor = 'rgb(211,211,211, 0.5)';

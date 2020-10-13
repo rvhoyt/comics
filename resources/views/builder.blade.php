@@ -45,7 +45,7 @@
   
   <button style="position:absolute;z-index:10" v-if="!mainView" @click="exitFrame">Back to Main Canvas</button>
   <div class="canvas-container">
-    <canvas id="design" :width="pageWidth" height="600" style="zIndex:2"></canvas>
+    <canvas id="design" :width="pageWidth" height="600"></canvas>
     <canvas v-for="frame in frames" :width="pageWidth" height="600" :ref="'frame' + frame.id"></canvas>
     
     <div class="controls">
@@ -127,6 +127,7 @@
         <br/><br/>
         <button type="button" @click="saveImage()">Save Image</button>
       </div>
+      <div class="canvas-spacer"></div>
     </div>
     
   <div class="container">
