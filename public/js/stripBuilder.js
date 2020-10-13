@@ -13,9 +13,13 @@ const Builder = {
       description: '',
       fontFamilyValue: 'Verdana',
       fontSizeValue: 12,
+      frames: [],
+      frameView: undefined,
       imgSrcs: [],
       libraryElements: [],
-      libaryFolders: ['Items', 'Shapes', 'Characters', 'Library'],
+      libaryFolders: ['Items', 'Shapes', 'Characters', 'Pieces', 'Library'],
+      mainCanvas: undefined,
+      mainView: true,
       opacityValue: 1,
       radiusValue: 0,
       selectedFolder: 'Items',
@@ -24,10 +28,50 @@ const Builder = {
       zoomValue: 1
     }
   },
+  watch: {
+
+  },
   computed: {
 
   },
   methods: {
+    addFrame: function() {
+      var ctrl = this;
+      var id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      var width = 200;
+      height = 250;
+      var rect = new fabric.Rect({
+        top: 110,
+        left: 110,
+        width: width,
+        height: height,
+        stroke: 'black',
+        fill: 'white',
+        frameId: id,
+        isFrame: true,
+        blur:0,
+        opacity: 1,
+        inverted: 0
+      });
+      var frame = {
+        id: id,
+        placeholder: rect,
+        canvas: undefined
+      };
+      this.frames.push(frame);
+      setTimeout(function() {
+        frame.canvas = new fabric.Canvas(ctrl.$refs['frame' + id], {
+          containerClass: 'design',
+          stopContextMenu: true,
+          preserveObjectStacking: true
+        });
+        ctrl.$refs['frame' + id].parentElement.style.display = 'none';
+        ctrl.initCanvas(frame.canvas);
+        ctrl.setCanvas(width, height, true, frame.canvas);
+        frame.canvas.upperCanvasEl.style.display = 'block';
+      }, 30);
+      this.design.add(rect);
+    },
     addImage: function(src, x, y) {
       var ctrl = this;
       x = x ? x : 100;
@@ -173,6 +217,35 @@ const Builder = {
       this.copyElement();
       setTimeout(this.pasteElement, 50);
     },
+    enterFrame: function(id) {
+      var ctrl = this;
+      var frame = this.frames.find((frame) => frame.id === id);
+      ctrl.design.lowerCanvasEl.parentElement.style.display = 'none';
+      ctrl.design = frame.canvas;
+      ctrl.design.lowerCanvasEl.parentElement.style.display = 'flex';
+      ctrl.frameView = id;
+      ctrl.mainView = false;
+    },
+    exitFrame: function() {
+      var ctrl = this;
+      var frame = this.frames.find((frame) => frame.id === ctrl.frameView);
+      var img = this.design.toCanvasElement(1, {
+        left: 100,
+        top: 100,
+        width: frame.placeholder.width,
+        height: frame.placeholder.height
+      });
+      frame.placeholder.fill = new fabric.Pattern({
+        source: img,
+        repeat: 'no-repeat'
+      });
+      frame.placeholder.dirty = true;
+      ctrl.design.lowerCanvasEl.parentElement.style.display = 'none';
+      ctrl.design = ctrl.mainCanvas;
+      ctrl.design.lowerCanvasEl.parentElement.style.display = 'flex';
+      ctrl.mainView = true;
+      ctrl.design.renderAll();
+    },
     flipMask: function() {
       var active = this.design.getActiveObject();
       if (!active || !active.isMasked) {
@@ -252,6 +325,74 @@ const Builder = {
         obj.left--;
         this.design.renderAll();
       }
+    },
+    initCanvas: function(canvas) {
+      var ctrl = this;
+      function startPan(event) {
+        if (event.button != 2) {
+            return;
+        }
+        var x0 = event.screenX,
+            y0 = event.screenY;
+
+        function continuePan(event) {
+            var x = event.screenX,
+                y = event.screenY;
+            canvas.relativePan({
+                x: x - x0,
+                y: y - y0
+            });
+            x0 = x;
+            y0 = y;
+        }
+
+        function stopPan(event) {
+          window.removeEventListener('mousemove', continuePan);
+          window.removeEventListener('mouseup', stopPan);
+        };
+        window.addEventListener('mousemove', continuePan);
+        window.addEventListener('mouseup', stopPan);
+      };
+      
+      canvas.wrapperEl.addEventListener('mousedown', startPan);
+      canvas.setWidth(document.querySelector('.design').offsetWidth-2);
+      // hook up the pan and zoom
+      canvas.on('mouse:wheel', function(opt) {
+        var delta = opt.e.deltaY;
+        var zoom = ctrl.design.getZoom();
+        zoom *= 0.999 ** delta;
+        if (zoom > 20) zoom = 20;
+        if (zoom < 0.01) zoom = 0.01;
+        if (zoom > 3) {
+          zoom = 3;
+        }
+        this.setZoom(zoom);
+        ctrl.zoomValue = zoom;
+        opt.e.preventDefault();
+        opt.e.stopPropagation();
+      });
+      
+      canvas.on('mouse:down', function(opt) {
+        var evt = opt.e;
+        if (this.placingPoint) {
+          ctrl.placeTextboxPoint(this.placingPoint, evt.layerX, evt.layerY);
+          this.placingPoint = false;
+        }
+      });
+      
+      canvas.on('mouse:dblclick', function(ev) {
+        var target = ev.target;
+        if (ev.target.isFrame) {
+          ctrl.enterFrame(ev.target.frameId);
+        }
+      });
+
+      /* image adding*/
+      canvas.on('drop', this.drop);
+      
+      canvas.on('selection:updated', this.updateActiveSelectionType);
+      canvas.on('selection:created', this.updateActiveSelectionType);
+      canvas.on('selection:cleared', this.updateActiveSelectionType);
     },
     invertElement: function(obj) {
       var ctrl = this;
@@ -441,17 +582,20 @@ const Builder = {
         this.design.renderAll();
       }
     },
-    setCanvas: function(width, height, skip = false) {
+    setCanvas: function(width, height, skip = false, canvas = undefined) {
       if (!skip) {
         var check = confirm('Resizing the canvas will erase the contents.');
         if (!check) {
           return false;
         }
       }
-      this.canvasWidth = width;
-      this.canvasHeight = height;
-      this.design.clear();
-      this.design.backgroundColor = 'lightgrey';
+      if (!canvas) {
+        this.canvasWidth = width;
+        this.canvasHeight = height;
+        canvas = this.design;
+      }
+      canvas.clear();
+      canvas.backgroundColor = 'lightgrey';
       var rect = new fabric.Rect({
         width: width,
         height: height,
@@ -461,7 +605,7 @@ const Builder = {
         selectable: false,
         hoverCursor: 'cursor',
       });
-      this.design.add(rect);
+      canvas.add(rect);
     },
     startPlaceTextboxPoint: function() {
       var obj = this.design.getActiveObject();
@@ -580,70 +724,11 @@ const Builder = {
       stopContextMenu: true,
       preserveObjectStacking: true
     });
+    this.mainCanvas = this.design;
     window.c = this.design;
     
-    function startPan(event) {
-      if (event.button != 2) {
-          return;
-      }
-      var x0 = event.screenX,
-          y0 = event.screenY;
-
-      function continuePan(event) {
-          var x = event.screenX,
-              y = event.screenY;
-          ctrl.design.relativePan({
-              x: x - x0,
-              y: y - y0
-          });
-          x0 = x;
-          y0 = y;
-      }
-
-      function stopPan(event) {
-        window.removeEventListener('mousemove', continuePan);
-        window.removeEventListener('mouseup', stopPan);
-      };
-      window.addEventListener('mousemove', continuePan);
-      window.addEventListener('mouseup', stopPan);
-    };
-
-    this.design.wrapperEl.addEventListener('mousedown', startPan);
-    this.design.setWidth(document.querySelector('.design').offsetWidth-2);
-    
     this.setCanvas(682, 270, true);
-
-    // hook up the pan and zoom
-    this.design.on('mouse:wheel', function(opt) {
-      var delta = opt.e.deltaY;
-      var zoom = ctrl.design.getZoom();
-      zoom *= 0.999 ** delta;
-      if (zoom > 20) zoom = 20;
-      if (zoom < 0.01) zoom = 0.01;
-      if (zoom > 3) {
-        zoom = 3;
-      }
-      this.setZoom(zoom);
-      ctrl.zoomValue = zoom;
-      opt.e.preventDefault();
-      opt.e.stopPropagation();
-    });
-    
-    this.design.on('mouse:down', function(opt) {
-      var evt = opt.e;
-      if (this.placingPoint) {
-        ctrl.placeTextboxPoint(this.placingPoint, evt.layerX, evt.layerY);
-        this.placingPoint = false;
-      }
-    });
-
-    /* image adding*/
-    this.design.on('drop', this.drop);
-    
-    this.design.on('selection:updated', this.updateActiveSelectionType);
-    this.design.on('selection:created', this.updateActiveSelectionType);
-    this.design.on('selection:cleared', this.updateActiveSelectionType);
-    
+    this.initCanvas(this.design);
   },
   created() {
     var ctrl = this;

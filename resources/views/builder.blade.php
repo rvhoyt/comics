@@ -43,8 +43,10 @@
     </div>
   </div>
   
+  <button v-if="!mainView" @click="exitFrame">Back to Main Canvas</button>
   <div class="canvas-container">
-    <canvas id="design" width="1000" height="600"></canvas>
+    <canvas id="design" width="1000" height="600" v-show="mainView"></canvas>
+    <canvas v-show="!mainView && frameView === frame.id" v-for="frame in frames" height="600" :ref="'frame' + frame.id"></canvas>
     
     <div class="controls">
         <label>Zoom:
@@ -55,6 +57,7 @@
         <button type="button" @click="setCanvas(682, 270)">Canvas 1 Line</button>
         <button type="button" @click="setCanvas(682, 530)">Canvas Half Page</button>
         <button type="button" @click="setCanvas(682, 1050)">Canvas Full Page</button>
+        <button type="button" @click="addFrame" :disabled="!mainView">Add Frame</button>
         <br/><br/>
         <button type="button" @click="groupElements" :disabled="activeSelectionCount < 2">Group</button>
         <button type="button" @click="ungroupElements" :disabled="activeSelectionType !== 'group'">Ungroup</button>
