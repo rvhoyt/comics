@@ -212,6 +212,22 @@ const Builder = {
       ev.dataTransfer.setData("x", x);
       ev.dataTransfer.setData("y", y);
     },
+    drawFrame: function(frameId) {
+      var frame = frames.find((frame) => frame.id === frameId);
+      frame.canvas.setZoom(1);
+      frame.canvas.absolutePan({x:0, y:0});
+      var img = frame.canvas.toCanvasElement(1, {
+        left: 100,
+        top: 100,
+        width: frame.placeholder.width,
+        height: frame.placeholder.height
+      });
+      frame.placeholder.fill = new fabric.Pattern({
+        source: img,
+        repeat: 'no-repeat'
+      });
+      frame.placeholder.dirty = true;
+    },
     drop: function(ev) {
       var ctrl = this;
       var zoom = design.getZoom();
@@ -262,20 +278,7 @@ const Builder = {
     },
     exitFrame: function() {
       var ctrl = this;
-      var frame = frames.find((frame) => frame.id === ctrl.frameView);
-      frame.canvas.setZoom(1);
-      frame.canvas.absolutePan({x:0, y:0});
-      var img = design.toCanvasElement(1, {
-        left: 100,
-        top: 100,
-        width: frame.placeholder.width,
-        height: frame.placeholder.height
-      });
-      frame.placeholder.fill = new fabric.Pattern({
-        source: img,
-        repeat: 'no-repeat'
-      });
-      frame.placeholder.dirty = true;
+      this.drawFrame(ctrl.frameView);
       design.lowerCanvasEl.parentElement.style.zIndex = '0';
       design = mainCanvas;
       design.lowerCanvasEl.parentElement.style.zIndex = '2';
@@ -457,6 +460,22 @@ const Builder = {
       canvas.on('selection:updated', this.updateActiveSelectionType);
       canvas.on('selection:created', this.updateActiveSelectionType);
       canvas.on('selection:cleared', this.updateActiveSelectionType);
+      
+      canvas.on('object:scaled', function(obj) {
+        if (obj.target.isFrame) {
+          var width = obj.target.width * obj.target.scaleX
+          var height = obj.target.height * obj.target.scaleY;
+          var frame = frames.find(function(f) {
+            return f.id === obj.target.frameId
+          });
+          obj.target.width = width;
+          obj.target.height = height;
+          obj.target.scaleX = 1;
+          obj.target.scaleY = 1;
+          ctrl.setCanvas(width, height, true, frame.canvas, false);
+          ctrl.drawFrame(frame.id);
+        }
+      });
       
     },
     invertElement: function(obj) {
@@ -647,7 +666,7 @@ const Builder = {
         design.renderAll();
       }
     },
-    setCanvas: function(width, height, skip = false, canvas = undefined) {
+    setCanvas: function(width, height, skip = false, canvas = undefined, empty = true) {
       var ctrl = this;
       if (!skip) {
         var check = confirm('Resizing the canvas will erase the contents.');
@@ -668,7 +687,11 @@ const Builder = {
         transparency = true;
         canvas.lowerCanvasEl.parentElement.style.zIndex = '2';
       }
-      canvas.clear();
+      if (empty) {
+        canvas.clear();
+      } else {
+        canvas.remove(canvas._objects[0]);
+      }
       canvas.backgroundColor = 'rgb(211,211,211, 0.5)';
       if (transparency) {
         canvas.backgroundColor = 'lightgrey';
@@ -683,6 +706,9 @@ const Builder = {
         hoverCursor: 'cursor',
       });
       canvas.add(rect);
+      if (!empty) {
+        canvas.sendToBack(rect);
+      }
     },
     startPlaceTextboxPoint: function() {
       var obj = design.getActiveObject();
