@@ -25,32 +25,13 @@ Route::get('home', [App\Http\Controllers\HomeController::class, 'index'])->name(
 
 Route::get('builder', [App\Http\Controllers\BuilderController::class, 'index'])->name('builder');
 
-Route::post('builder', function (Request $request) {
-    $data = $request->validate([
-        'title' => 'required|max:255',
-        'url' => 'required',
-        'description' => 'required',
-    ]);
-    
-    require_once '../app/helpers.php';
-    
-    $filename = $request->user()->id . time() . '.png';
-    $file = $data['url'];
-    $file = str_replace(' ','+',$file);
-    $file =  substr($file,strpos($file,",")+1);
-    $file = base64_decode($file);
-    uploadToB2($file, $filename);
-
-
-    $data['user'] = $request->user()->id;
-    $data['url'] = $filename;
-
-    $strip = tap(new App\Models\Strip($data))->save();
-
-    return redirect('/');
-});
+Route::post('builder', [App\Http\Controllers\BuilderController::class, 'save']);
 
 Route::get('strips/{id}', [App\Http\Controllers\StripController::class, 'index'])->name('strip');
+
+Route::post('strips/{id}', [App\Http\Controllers\StripController::class, 'edit']);
+
+Route::get('strips/{id}/delete', [App\Http\Controllers\StripController::class, 'delete']);
 
 Route::post('strips/{id}/comment', [App\Http\Controllers\CommentController::class, 'save']);
 

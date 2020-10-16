@@ -4,8 +4,28 @@
 <div class="container">
     <div class="row">
       <div class="card">
-        <h1 class="card-header">{{ $strip->title }}</h1>
+        <h1 class="card-header">
+          {{ $strip->title }}
+          @auth
+            <button type="button" id="delete-strip" class="btn btn-danger btn-sm float-right">Delete</button>
+            <button type="button" id="edit-strip" class="btn btn-primary btn-sm float-right">Edit</button>
+          @endif
+        </h1>
         <div class="card-body text-center">
+          @auth
+            <form id="edit-form" class="form" method="POST" style="display:none;">
+              @csrf
+              <div class="form-group">
+                <label for="title">Title</label>
+                <input name="title" class="form-control" value="{{$strip->title}}"/>
+              </div>
+              <div class="form-group">
+              <label for="description">Description</label>
+                <textarea name="description" class="form-control">{{$strip->description}}</textarea>
+              </div>
+              <button class="btn btn-primary">Submit</button>
+            </form>
+          @endif
           <img
             src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}"
             alt="{{ $strip->title}}"/>
@@ -91,6 +111,15 @@
         });
       }
     });
+  });
+  $('body').on('click', '#edit-strip', function() {
+    $('#edit-form').show();
+  });
+  $('body').on('click', '#delete-strip', function() {
+    var check = confirm('Are you sure you want to delete this strip?');
+    if (check) {
+      window.location = window.location + '/delete';
+    }
   });
   </script>
 @stop
