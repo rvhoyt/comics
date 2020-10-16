@@ -6,7 +6,7 @@
       <div class="card">
         <h1 class="card-header">
           {{ $strip->title }}
-          @auth
+          @if (auth()->user() && auth()->user()->id === $strip->user)
             <button type="button" id="delete-strip" class="btn btn-danger btn-sm float-right">Delete</button>
             <button type="button" id="edit-strip" class="btn btn-primary btn-sm float-right">Edit</button>
           @endif
