@@ -26,6 +26,9 @@ class ProfileController extends Controller
      */
     public function index($id, $page = 1)
     {
+        if (!is_numeric($id)) {
+          return redirect('/');
+        }
         $user = User::find($id);
         
         $count = DB::table('strips')->where('user', 1)->count();

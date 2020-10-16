@@ -25,6 +25,9 @@ class StripController extends Controller
      */
     public function index($id)
     {
+        if (!is_numeric($id)) {
+          return redirect('/');
+        }
         $strip = Strip::find($id);
         
         $comments = Comment::where('strip_id', (int)$id)->orderBy('created_at', 'DESC')->get();
@@ -33,6 +36,9 @@ class StripController extends Controller
     }
     
     public function edit(Request $request, $id) {
+      if (!is_numeric($id)) {
+        return redirect('/');
+      }
       $this->middleware('auth');
       $strip = Strip::find($id);
       
@@ -46,8 +52,15 @@ class StripController extends Controller
     }
     
     public function delete(Request $request, $id) {
+      if (!is_numeric($id)) {
+        return redirect('/');
+      }
       $this->middleware('auth');
       $strip = Strip::find($id);
+      
+      require_once '../app/helpers.php';
+      
+      deleteFromB2($strip->fileId, $strip->url);
       
       if ($request->user()->id === $strip->user) {
         $strip->delete();

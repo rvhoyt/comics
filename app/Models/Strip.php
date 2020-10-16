@@ -11,7 +11,8 @@ class Strip extends Model
       'title',
       'description',
       'url',
-      'user'
+      'user',
+      'fileId'
     ];
     
     public function owner() {

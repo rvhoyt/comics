@@ -78,4 +78,52 @@ function uploadToB2($file, $file_name) {
   $upload = curl_exec($session); // Let's do this!
   curl_close ($session); // Clean up
   $upload = json_decode($upload);
+  
+  return $upload->fileId;
+}
+
+
+
+function deleteFromB2($file_id, $file_name) {
+  /*start authentication*/
+  $application_key_id = "003e87c9b90e18e0000000001";
+  $application_key = "K003qGH/D84kwYTcN4KAEELVB/W6YH4";
+  $credentials = base64_encode($application_key_id . ":" . $application_key);
+  $url = "https://api.backblazeb2.com/b2api/v2/b2_authorize_account";
+
+  $session = curl_init($url);
+
+  // Add headers
+  $headers = array();
+  $headers[] = "Accept: application/json";
+  $headers[] = "Authorization: Basic " . $credentials;
+  curl_setopt($session, CURLOPT_HTTPHEADER, $headers);  // Add headers
+  curl_setopt($session, CURLOPT_SSL_VERIFYHOST, false);
+  curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
+  curl_setopt($session, CURLOPT_HTTPGET, true);  // HTTP GET
+  curl_setopt($session, CURLOPT_RETURNTRANSFER, true); // Receive server response
+  $server_output = curl_exec($session);
+  curl_close ($session);
+  $server_output = json_decode($server_output);
+  
+  
+  $api_url = $server_output->apiUrl; // From b2_authorize_account call
+  $auth_token = $server_output->authorizationToken; // From b2_authorize_account call
+
+  $session = curl_init($api_url .  "/b2api/v2/b2_delete_file_version");
+
+  // Add post fields
+  $data = array("fileId" => $file_id, "fileName" => $file_name);
+  $post_fields = json_encode($data);
+  curl_setopt($session, CURLOPT_POSTFIELDS, $post_fields); 
+
+  // Add headers
+  $headers = array();
+  $headers[] = "Authorization: " . $auth_token;
+  curl_setopt($session, CURLOPT_HTTPHEADER, $headers); 
+
+  curl_setopt($session, CURLOPT_POST, true); // HTTP POST
+  curl_setopt($session, CURLOPT_RETURNTRANSFER, true);  // Receive server response
+  $server_output = curl_exec($session); // Let's do this!
+  curl_close ($session); // Clean up
 }

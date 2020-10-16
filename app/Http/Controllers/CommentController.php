@@ -23,14 +23,11 @@ class CommentController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index($id)
-    {
-        $strip = Strip::find($id);
-        
-        return view('strip', ['strip' => $strip]);
-    }
     
     public function save(Request $request, $id) {
+      if (!is_numeric($id)) {
+        return redirect('/');
+      }
       $this->middleware('auth');
       $data = $request->validate([
           'comment' => 'required|max:1000',
@@ -45,6 +42,9 @@ class CommentController extends Controller
     }
     
     public function delete(Request $request, $id) {
+      if (!is_numeric($id)) {
+        return redirect('/');
+      }
       $this->middleware('auth');
       $comment = Comment::find($id);
       $strip_id = $comment->strip_id;
@@ -57,6 +57,9 @@ class CommentController extends Controller
     }
     
     public function edit(Request $request, $id) {
+      if (!is_numeric($id)) {
+        return redirect('/');
+      }
       $this->middleware('auth');
       $comment = Comment::find($id);
       $strip_id = $comment->strip_id;

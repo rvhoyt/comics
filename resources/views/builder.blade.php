@@ -139,7 +139,8 @@
   <div class="container">
     <br/>
     <div class="row card">
-      <form action="/builder" method="post" class="card-body">
+      <form class="card-body" @submit="handleSubmission">
+        <p v-if="error" class="alert alert-danger">@{{error}}</p>
         <p>Press save image on right panel to enable submit button</p>
         @csrf
         <div class="form-group">

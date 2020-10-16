@@ -14,6 +14,7 @@ const Builder = {
       canvasWidth: undefined,
       customProperties: ['active', 'blur', 'invert', 'isMasked', 'textboxBorderSize', 'textboxBorderColor', 'radius', 'pointX', 'pointY'],
       description: '',
+      error: '',
       fontFamilyValue: 'Verdana',
       fontSizeValue: 12,
       frames: [],
@@ -384,6 +385,34 @@ const Builder = {
         }
         design.renderAll();
       }
+    },
+    handleSubmission: function(ev) {
+      ev.preventDefault();
+      var ctrl = this;
+      var data = new FormData();
+      var status;
+      data.append('title', this.title);
+      data.append('description', this.description);
+      data.append('url', this.url);
+      
+      fetch('builder', {
+        method: 'POST',
+        body: data,
+      })
+      .then(function(resp) {
+        status = resp.status;
+        return resp.text()
+      })
+      .then(function(text) {
+        if (status === 200) {
+          window.location = '/strips/' + text;
+        } else {
+          ctrl.error = text;
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
     },
     initCanvas: function(canvas) {
       var ctrl = this;
