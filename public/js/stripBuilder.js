@@ -27,6 +27,7 @@ const Builder = {
       opacityValue: 1,
       radiusValue: 0,
       selectedFolder: 'Items',
+      submitting: false,
       title: '',
       url: '',
       zoomValue: 1
@@ -387,6 +388,7 @@ const Builder = {
       }
     },
     handleSubmission: function(ev) {
+      this.submitting = true;
       ev.preventDefault();
       var ctrl = this;
       var data = new FormData();
@@ -407,6 +409,7 @@ const Builder = {
         if (status === 200) {
           window.location = '/strips/' + text;
         } else {
+          ctrl.submitting = false;
           ctrl.error = text;
         }
       })

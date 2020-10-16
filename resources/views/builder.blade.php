@@ -154,7 +154,7 @@
             <label id="description-label" for="description" :class="{'text-danger':description.length > 1000}">Description  <span id="description-length">@{{description.length}}</span>/1000</label>
             <textarea class="form-control" name="description" placeholder="description" required v-model="description">{{ old('description') }}</textarea>
         </div>
-        <button :disabled="!description.length || description.length > 1000 || !url" type="submit" class="btn btn-primary">Submit</button>
+        <button :disabled="submitting || !description.length || description.length > 1000 || !url" type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
     
