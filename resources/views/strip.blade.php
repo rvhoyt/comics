@@ -12,7 +12,7 @@
           @endif
         </h1>
         <div class="card-body text-center">
-          @auth
+          @if (auth()->user() && auth()->user()->id === $strip->user)
             <form id="edit-form" class="form" method="POST" style="display:none;">
               @csrf
               <div class="form-group">
