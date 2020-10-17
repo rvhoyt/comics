@@ -40,7 +40,7 @@ class ProfileController extends Controller
           $nextPage = $page + 1;
         }
         
-        $strips = DB::table('strips')->where('user', (int)$id)->orderBy('created_at', 'DESC')->offset($offset)->limit(12)->get();
+        $strips = Strip::where('user', (int)$id)->orderBy('created_at', 'DESC')->offset($offset)->limit(12)->get();
         
         return view('profile', [
           'user' => $user,
