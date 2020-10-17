@@ -36,8 +36,8 @@
             <h2>Recent Strips</h2>
           </div>
           @foreach ($strips as $strip)
-              <div class="col-sm-2 mb-3">
-                <div class="card" title="{{$strip->title}}" style="height:150px;">
+              <div class="col-md-2 mb-3">
+                <div class="card" title="{{$strip->title}}" style="height:200px;">
                   <a href="/strips/{{ $strip->id }}" class="text-center">
                     <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
                   </a>
