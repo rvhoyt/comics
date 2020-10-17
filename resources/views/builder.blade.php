@@ -56,9 +56,9 @@
         </label>
         <span>@{{(zoomValue * 100).toFixed(0)}}%</span>
         <br/>
-        <button type="button" @click="setCanvas(682, 270)">Canvas 1 Line</button>
-        <button type="button" @click="setCanvas(682, 530)">Canvas Half Page</button>
-        <button type="button" @click="setCanvas(682, 1050)">Canvas Full Page</button>
+        <button type="button" @click="setCanvas(682, 270)" :disabled="!mainView">Canvas 1 Line</button>
+        <button type="button" @click="setCanvas(682, 530)" :disabled="!mainView">Canvas Half Page</button>
+        <button type="button" @click="setCanvas(682, 1050)" :disabled="!mainView">Canvas Full Page</button>
         <br/>
         <button type="button" @click="addFrame(220, 260)" :disabled="!mainView">Frame 1x</button>
         <button type="button" @click="addFrame(446, 260)" :disabled="!mainView">Frame 2x</button>
