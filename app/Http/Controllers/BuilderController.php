@@ -56,7 +56,7 @@ class BuilderController extends Controller
         $file = str_replace(' ','+',$file);
         $file =  substr($file,strpos($file,",")+1);
         $file = base64_decode($file);
-        $fileId = uploadToB2($file, $filename);
+        $fileId = uploadToB2($file, $filename, 'ae98f79cc9bbe9b07e41081e');
       } catch(Exception $e) {
         return response('Could not save image', 500);
       }

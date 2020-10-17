@@ -1,9 +1,9 @@
 <?php
 
-function uploadToB2($file, $file_name) {
+function uploadToB2($file, $file_name, $bucket_id) {
   /*start authentication*/
-  $application_key_id = "003e87c9b90e18e0000000001";
-  $application_key = "K003qGH/D84kwYTcN4KAEELVB/W6YH4";
+  $application_key_id = "003e87c9b90e18e0000000002";
+  $application_key = "K003toGUyRLs0djpLxUfzjN4vu614Tk";
   $credentials = base64_encode($application_key_id . ":" . $application_key);
   $url = "https://api.backblazeb2.com/b2api/v2/b2_authorize_account";
 
@@ -27,7 +27,6 @@ function uploadToB2($file, $file_name) {
   /*get upload authorization*/
   $api_url = $server_output->apiUrl; // From b2_authorize_account call
   $auth_token = $server_output->authorizationToken; // From b2_authorize_account call
-  $bucket_id = "ae98f79cc9bbe9b07e41081e";  // The ID of the bucket you want to upload to
 
   $session = curl_init($api_url .  "/b2api/v2/b2_get_upload_url");
 

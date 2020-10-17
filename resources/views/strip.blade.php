@@ -71,7 +71,10 @@
               @if ($comment->created_ad !== $comment->updated_at)
                 <span class="float-right">Edited&nbsp;&nbsp;</span>
               @endif
-              {{$comment->user->name}}
+              @if($comment->user->profile && $comment->user->profile->image)
+                <img src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$comment->user->profile->image}}" alt="{{$comment->user->name}}" height="30px"/>
+              @endif
+              <a href="/user/{{$comment->user->id}}">{{$comment->user->name}}</a>
             </div>
             <div class="card-body">
               <span class="comment-text">{{$comment->comment}}</span>

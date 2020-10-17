@@ -43,7 +43,10 @@ Route::get('comment/{id}/delete', [App\Http\Controllers\CommentController::class
 
 Route::post('comment/{id}', [App\Http\Controllers\CommentController::class, 'edit']);
 
-Route::get('user/{id}/{page?}', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+Route::get('user', [App\Http\Controllers\ProfileController::class, 'index']);
+Route::get('user/{id}/{page?}', [App\Http\Controllers\ProfileController::class, 'index']);
+
+Route::post('user', [App\Http\Controllers\ProfileController::class, 'update']);
 
 Route::get('library',  [App\Http\Controllers\LibraryController::class, 'index']);
 Route::post('library', [App\Http\Controllers\LibraryController::class, 'save']);
