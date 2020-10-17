@@ -19,7 +19,7 @@
           <br/><br/>
         </div>
         
-        <div class="col-sm-12">
+        <!--<div class="col-sm-12">
           <div class="alert alert-info">
             <h2>The Future</h2>
             <p>Hello fellow Strip Generator users! As we all know with the imminent death of Flash and the seeming abandoned state of Strip Generator, I've started this project to attempt to keep the community alive and active.</p>
@@ -29,7 +29,7 @@
             You may upload SVG files via <a target="_blank" rel="noopener" href="https://www.dropbox.com/request/bBleQ5huRKFXg6jrfSwq">this link</a>.
             <p>Thank you, and hopefully we can build a great community together!</a>
           </div>
-        </div>
+        </div>-->
         
         <div class="col-sm-12 row">
           <div class="col-sm-12">
@@ -37,12 +37,21 @@
           </div>
           @foreach ($strips as $strip)
               <div class="col-sm-2 mb-3">
-                <div class="card" title="{{$strip->title}}">
-                  <a href="/strips/{{ $strip->id }}">
+                <div class="card" title="{{$strip->title}}" style="height:150px;">
+                  <a href="/strips/{{ $strip->id }}" class="text-center">
                     <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
-                    <strong>{{ $strip->title }}</strong>
                   </a>
-                  <a href="/user/{{$strip->owner->id}}">{{$strip->owner->name}}</a>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <div class="float-left badge badge-light" style="padding:10px;margin:5px;margin-top:0">
+                      {{count($strip->likes)}}
+                      </div>
+                    </div>
+                    <div class="col-sm-8">
+                      <a href="/strips/{{ $strip->id }}"><strong>{{ $strip->title }}</strong></a>
+                      <a href="/user/{{$strip->owner->id}}">{{$strip->owner->name}}</a>
+                    </div>
+                  </div>
                 </div>
               </div>
           @endforeach

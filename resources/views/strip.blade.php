@@ -4,13 +4,28 @@
 <div class="container">
     <div class="row">
       <div class="card">
-        <h1 class="card-header">
-          {{ $strip->title }}
-          @if (auth()->user() && auth()->user()->id === $strip->user)
-            <button type="button" id="delete-strip" class="btn btn-danger btn-sm float-right">Delete</button>
-            <button type="button" id="edit-strip" class="btn btn-primary btn-sm float-right">Edit</button>
-          @endif
-        </h1>
+        <div class="card-header">
+          <div class="row">
+            <div class="col-sm-1">
+              <div class="card text-center" style="width:50px;margin-right: 15px;height:100%;">
+              <strong style="font-size:150%" class="likes">{{count($likes)}}</strong>
+              LIKES
+              </div>
+            </div>
+            <div class="col-sm-11">
+              <h1>
+              {{ $strip->title }}
+              </h1>
+              @if (auth()->user() && auth()->user()->id === $strip->user)
+                <button type="button" id="delete-strip" class="btn btn-danger btn-sm float-right">Delete</button>
+                <button type="button" id="edit-strip" class="btn btn-primary btn-sm float-right">Edit</button>
+              @endif
+              <div>
+                <a href="/user/{{$author->id}}">{{$author->name}}</a> &nbsp;&nbsp;&nbsp;{{$strip->created_at->format('j F, Y')}}
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="card-body text-center">
           @if (auth()->user() && auth()->user()->id === $strip->user)
             <form id="edit-form" class="form" method="POST" style="display:none;">
@@ -31,6 +46,12 @@
             alt="{{ $strip->title}}"/>
           <div class="col-sm-12">
             <p>{{$strip->description}}</p>
+          </div>
+          <div class="col-sm-12">
+            <button type="button" class="@if(!$alreadyLiked) like @else disabled @endif btn btn-primary float-right">
+              Like
+              <span class="badge badge-light likes">{{count($likes)}}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -120,6 +141,15 @@
     if (check) {
       window.location = window.location + '/delete';
     }
+  });
+  
+  $('body').on('click', '.like', function() {
+    $('.like').removeClass('like').addClass('disabled');
+    $.get(window.location.pathname + '/like').done(function() {
+      var likes = parseInt($('.likes').eq(0).text());
+      likes++;
+      $('.likes').text(likes);
+    });
   });
   </script>
 @stop

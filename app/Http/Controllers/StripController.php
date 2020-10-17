@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Strip;
 use App\Models\Comment;
+use App\Models\Like;
+use App\Models\User;
 
 class StripController extends Controller
 {
@@ -23,16 +25,30 @@ class StripController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index($id)
+    public function index(Request $request, $id)
     {
         if (!is_numeric($id)) {
           return redirect('/');
         }
         $strip = Strip::find($id);
         
+        $author = User::find($strip->user);
+        
+        $user_id = $request->user()->id;
+        
         $comments = Comment::where('strip_id', (int)$id)->orderBy('created_at', 'DESC')->get();
         
-        return view('strip', ['strip' => $strip, 'comments' => $comments]);
+        $likes = Like::where('strip_id', (int)$id)->get();
+        
+        $alreadyLiked = Like::where('user_id', $user_id)->where('strip_id', $id)->count();
+        
+        return view('strip', [
+          'author' => $author,
+          'strip' => $strip,
+          'comments' => $comments,
+          'likes' => $likes,
+          'alreadyLiked' => $alreadyLiked
+        ]);
     }
     
     public function edit(Request $request, $id) {

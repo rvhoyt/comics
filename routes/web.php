@@ -33,6 +33,10 @@ Route::post('strips/{id}', [App\Http\Controllers\StripController::class, 'edit']
 
 Route::get('strips/{id}/delete', [App\Http\Controllers\StripController::class, 'delete']);
 
+Route::get('strips/{id}/like', [App\Http\Controllers\LikeController::class, 'like']);
+
+Route::get('strips/{id}/unlike', [App\Http\Controllers\LikeController::class, 'unlike']);
+
 Route::post('strips/{id}/comment', [App\Http\Controllers\CommentController::class, 'save']);
 
 Route::get('comment/{id}/delete', [App\Http\Controllers\CommentController::class, 'delete']);

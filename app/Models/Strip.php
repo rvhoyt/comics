@@ -18,4 +18,9 @@ class Strip extends Model
     public function owner() {
       return $this->belongsTo('App\Models\User', 'user');
     }
+    
+    public function likes()
+    {
+        return $this->hasMany('App\Models\Like');
+    }
 }
