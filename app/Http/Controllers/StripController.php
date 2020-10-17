@@ -34,14 +34,16 @@ class StripController extends Controller
         
         $author = User::find($strip->user);
         
-        $user_id = $request->user()->id;
-        
         $comments = Comment::where('strip_id', (int)$id)->orderBy('created_at', 'DESC')->get();
         
         $likes = Like::where('strip_id', (int)$id)->get();
         
-        $alreadyLiked = Like::where('user_id', $user_id)->where('strip_id', $id)->count();
-        
+        if ($request->user()) {
+          $user_id = $request->user()->id;
+          $alreadyLiked = Like::where('user_id', $user_id)->where('strip_id', $id)->count();
+        } else {
+          $alreadyLiked = false;
+        }
         return view('strip', [
           'author' => $author,
           'strip' => $strip,
