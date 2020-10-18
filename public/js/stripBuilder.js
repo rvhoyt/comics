@@ -12,6 +12,7 @@ const Builder = {
       canvas: undefined,
       canvasHeight: undefined,
       canvasWidth: undefined,
+      colors: ['000000', 'ff0000', '00ff00', '00f', 'ffff00', '00ffff', 'ff00ff'],
       customProperties: ['active', 'blur', 'invert', 'isMasked', 'textboxBorderSize', 'textboxBorderColor', 'radius', 'pointX', 'pointY'],
       description: '',
       error: '',
@@ -163,6 +164,30 @@ const Builder = {
       if (activeObject) {
         design.bringToFront(activeObject);
         design.renderAll();
+      }
+    },
+    colorElement: function(color) {
+      var obj = design.getActiveObject();
+      obj.color = color;
+      
+      if (!obj.origSrc) {
+        var src = obj._originalElement.src;
+        obj.origSrc = src;
+      } else {
+        src = obj.origSrc;
+      }
+      src = src.replace('data:image/svg+xml;base64,', '');
+      src = atob(src);
+      src = src.replace(/#000000/g, '#' + obj.color);
+      src = src.replace(/black/g, '#' + obj.color);
+      src = btoa(src);
+      src = 'data:image/svg+xml;base64,' + src;
+      obj.dirty = true;
+      obj._element.onload = function() {
+        design.renderAll();
+      };
+      if (obj._element.src !== src) {
+        obj._element.src = src;
       }
     },
     copyElement: function() {
@@ -646,7 +671,12 @@ const Builder = {
         });
         return data;
       }
-      data = replaceSrc(data);
+      try {
+        data = replaceSrc(data);
+      } catch(err) {
+        alert('Cannot save group with custom colors to library');
+        return false;
+      }
       data = JSON.stringify(data);
       var payload = {
         data: data
@@ -833,6 +863,9 @@ const Builder = {
         });
         ctrl.libraryElements = objects;
       });
+    },
+    zoomCanvas: function(val) {
+      design.setZoom(val);
     }
   },
   mounted() {
@@ -973,6 +1006,19 @@ fabric.Image.prototype.renderCache = function() {
 
 var _updateCacheCanvas = fabric.Image.prototype._updateCacheCanvas;
 fabric.Image.prototype._updateCacheCanvas = function() {
+  if (this.color && this.color !== '000000') {
+    var src = this._originalElement.src;
+    src = src.replace('data:image/svg+xml;base64,', '');
+    src = atob(src);
+    src = src.replace(/#000000/g, '#' + this.color);
+    src = src.replace(/#000/g, '#' + this.color);
+    src = src.replace(/black/g, '#' + this.color);
+    src = btoa(src);
+    src = 'data:image/svg+xml;base64,' + src;
+    if (this._element.src !== src) {
+      this._element.src = src;
+    }
+  }
   var filter = 'blur(' + (this.blur * 10) + 'px)' +
     'invert(' + this.invert + ')';
   var oldVal = this.zoomX ;

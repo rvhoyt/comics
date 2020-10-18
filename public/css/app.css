@@ -10965,4 +10965,17 @@ a.text-dark:focus {
 .show{
   display:block!important;
 }
+
+.swatches{
+  
+}
+.swatch{
+  display:inline-block;
+  margin: 0 10px;
+  height: 30px;
+  width: 30px;
+  border-radius: 5px;
+  border: 1px solid grey;
+  cursor: pointer;
+}
   

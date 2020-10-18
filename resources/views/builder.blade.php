@@ -52,7 +52,7 @@
     
     <div class="controls">
         <label>Zoom:
-          <input v-model="zoomValue" min="0.5" max="3" step="0.01" type="range" @change="design.setZoom($event.target.value)"/>
+          <input v-model="zoomValue" min="0.5" max="3" step="0.01" type="range" @change="zoomCanvas($event.target.value)"/>
         </label>
         <span>@{{(zoomValue * 100).toFixed(0)}}%</span>
         <br/>
@@ -64,6 +64,9 @@
         <button type="button" @click="addFrame(446, 260)" :disabled="!mainView">Frame 2x</button>
         <button type="button" @click="addFrame(672, 260)" :disabled="!mainView">Frame 3x</button>
         <br/><br/>
+        <div class="swatches" v-if="activeSelectionType === 'image'">
+          <div class="swatch" v-for="color in colors" :style="'background:#' + color" @click="colorElement(color)"></div>
+        </div>
         <button type="button" @click="groupElements" :disabled="activeSelectionCount < 2">Group</button>
         <button type="button" @click="ungroupElements" :disabled="activeSelectionType !== 'group'">Ungroup</button>
         <br/>
