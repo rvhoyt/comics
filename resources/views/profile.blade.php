@@ -11,7 +11,9 @@
   <div class="row">
     @if ($profile)
     <div class="col-sm-2">
+      @if ($profile->image) 
       <img src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$profile->image}}" style="width:200px"/>
+      @endif
     </div>
     <div class="col-sm-10">
       {{$profile->description}}
