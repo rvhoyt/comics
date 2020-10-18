@@ -94,7 +94,7 @@
     var data = new FormData(document.querySelector('.profile-editor'));
     $.ajax({
       method: 'POST',
-      url: '',
+      url: '/user',
       data: data,
       processData: false,
       contentType: false
