@@ -12,7 +12,7 @@
     @if ($profile)
     <div class="col-sm-2">
       @if ($profile->image) 
-      <img src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$profile->image}}" style="width:200px"/>
+      <img src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$profile->image}}" style="width:150px"/>
       @endif
     </div>
     <div class="col-sm-10">
@@ -43,7 +43,7 @@
   <div class="row">
     @foreach ($strips as $strip)
         <div class="col-md-2 mb-3">
-          <div class="card" title="{{$strip->title}}" style="height:150px;">
+          <div class="card" title="{{$strip->title}}" style="height:200px;">
             <a href="/strips/{{ $strip->id }}" class="text-center">
               <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
             </a>
