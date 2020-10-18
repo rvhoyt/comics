@@ -3,7 +3,9 @@
 @section('content')
 <div class="container">
   <h1>
+    @if (auth()->user() && $user->id === auth()->user()->id)
     <button type="button" class="btn btn-primary edit-profile float-right" style="margin-top:15px;margin-bottom: 15px">Edit Profile</button>
+    @endif
     {{$user->name}}
   </h1>
   <div class="row">
