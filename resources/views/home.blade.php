@@ -73,6 +73,9 @@
           <div class="col-sm-12">
             <h2>Recent Followed Strips</h2>
           </div>
+          @if (count($followingStrips) === 0) 
+            <div class="col-sm-12 alert alert-info">Login and follow some artists!</div>
+          @endif
           @foreach ($followingStrips as $strip)
               <div class="col-md-2 mb-3">
                 <div class="card" title="{{$strip->title}}" style="height:200px;">
