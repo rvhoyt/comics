@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Strip;
+use App\Models\Follow;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -46,9 +47,14 @@ class HomeController extends Controller
         
         if ($request->user()) {
           $user_id = $request->user()->id;
+          $followees = Follow::where('user_id', '=', $user_id)->select('followee_id')->get();
+          $followee_ids = [];
+          foreach($followees as $f) {
+            $followee_ids[] = $f->followee_id;
+          }
+          
           $followingStrips = Strip
-            ::join('follows', 'strips.user', '=', 'follows.followee_id')
-            ->where('follows.user_id', '=', $user_id)
+            ::whereIn('user', $followee_ids)
             ->orderBy('strips.created_at', 'desc')
             ->offset($offset)
             ->take(12)
