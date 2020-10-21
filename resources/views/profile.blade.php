@@ -6,6 +6,11 @@
     @if (auth()->user() && $user->id === auth()->user()->id)
     <button type="button" class="btn btn-primary edit-profile float-right" style="margin-top:15px;margin-bottom: 15px">Edit Profile</button>
     @endif
+    
+    @if (!$isFollowing && auth()->user() && $user->id !== auth()->user()->id)
+    <button type="button" class="btn btn-primary follow-user float-right" style="margin-top:15px;margin-bottom: 15px">Follow</button>
+    @endif
+    
     {{$user->name}}
   </h1>
   <div class="row">
@@ -70,6 +75,25 @@
       <a href="/user/{{$user->id}}/{{$nextPage}}" class="float-right">Next Page</a>
     @endif
   </div>
+  
+  <div class="col-sm-12">
+    <h3>Following</h3>
+    <div class="row">
+      @foreach ($followees as $followee)
+      <div class="col-sm-2">
+        <a href="/user/{{$followee->followee_id}}">
+        @if ($followee->followee->profile && $followee->followee->profile->image)
+          <img style="max-height:150px;max-width:150px" src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$followee->followee->profile->image}}"/>
+        @else
+          <img style="height:150px;width:150px" src=""/>
+        @endif
+        <br/>
+        {{$followee->followee->name}}
+        </a>
+      </div>
+      @endforeach
+    </div>
+  </div>
 </div>
 @endsection
 
@@ -78,6 +102,16 @@
   $('body').on('click', '.edit-profile', function() {
     $('.edit-profile').hide();
     $('.profile-editor').show();
+  });
+  
+  $('body').on('click', '.follow-user', function() {
+    $.ajax(window.location.pathname + '/follow')
+      .done(function(r) {
+        $('.follow-user').hide();
+      })
+      .fail(function(r) {
+        
+      });
   });
   
   $("#image-upload").on("change", function (e) {

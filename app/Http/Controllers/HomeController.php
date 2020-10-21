@@ -23,7 +23,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index($page = 1)
+    public function index(Request $request, $page = 1)
     {
       
         $userCount = DB::table('users')->count();
@@ -40,10 +40,33 @@ class HomeController extends Controller
             ->offset($offset)
             ->take(12)
             ->get();
+
+        $followingStrips = [];
+        $nextPageFollow = false;
+        
+        if ($request->user()) {
+          $user_id = $request->user()->id;
+          $followingStrips = Strip
+            ::join('follows', 'strips.user', '=', 'follows.followee_id')
+            ->where('follows.user_id', '=', $user_id)
+            ->orderBy('strips.created_at', 'desc')
+            ->offset($offset)
+            ->take(12)
+            ->get();
+          $countFollow = DB::table('strips')
+            ->join('follows', 'strips.user', '=', 'follows.followee_id')
+            ->where('follows.user_id', '=', $user_id)
+            ->count();
+          if ($page * 12 < $countFollow) {
+            $nextPageFollow = $page + 1;
+          }
+        }
         
         return view('home', [
           'strips' => $strips,
+          'followingStrips' => $followingStrips,
           'nextPage' => $nextPage,
+          'nextPageFollow' => $nextPageFollow,
           'currentPage' => $page,
           'stripCount' => $count,
           'userCount' => $userCount
