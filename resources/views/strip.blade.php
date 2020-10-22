@@ -73,6 +73,8 @@
               @endif
               @if($comment->user->profile && $comment->user->profile->image)
                 <img src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$comment->user->profile->image}}" alt="{{$comment->user->name}}" height="30px"/>
+              @else
+                <img src="/images/profile.jpg" height="30px" style="opacity: 0.5;" alt="No Profile Image"/>
               @endif
               <a href="/user/{{$comment->user->id}}">{{$comment->user->name}}</a>
             </div>

@@ -14,16 +14,22 @@
     {{$user->name}}
   </h1>
   <div class="row">
-    @if ($profile)
     <div class="col-sm-2">
-      @if ($profile->image) 
+      @if ($profile && $profile->image) 
       <img src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$profile->image}}" style="width:150px"/>
+      @else
+      <img src="/images/profile.jpg" width="150px" style="opacity: 0.5;" alt="No Profile Image"/>
       @endif
     </div>
     <div class="col-sm-10">
+      @if ($profile && $profile->description)
       {{$profile->description}}
+      @else
+        {missing description}
+        <br/>
+        Such a mysterious person...
+      @endif
     </div>
-    @endif
   </div>
   <br/>
   @if (auth()->user() && $user->id === auth()->user()->id)
