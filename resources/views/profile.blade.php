@@ -9,6 +9,8 @@
     
     @if (!$isFollowing && auth()->user() && $user->id !== auth()->user()->id)
     <button type="button" class="btn btn-primary follow-user float-right" style="margin-top:15px;margin-bottom: 15px">Follow</button>
+    @elseif ($isFollowing && auth()->user() && $user->id !== auth()->user()->id)
+    <button type="button" class="btn btn-primary unfollow-user float-right" style="margin-top:15px;margin-bottom: 15px">Unfollow</button>
     @endif
     
     {{$user->name}}
@@ -114,6 +116,16 @@
     $.ajax(window.location.pathname + '/follow')
       .done(function(r) {
         $('.follow-user').hide();
+      })
+      .fail(function(r) {
+        
+      });
+  });
+  
+  $('body').on('click', '.unfollow-user', function() {
+    $.ajax(window.location.pathname + '/unfollow')
+      .done(function(r) {
+        $('.unfollow-user').hide();
       })
       .fail(function(r) {
         

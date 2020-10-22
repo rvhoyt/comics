@@ -98,6 +98,18 @@ class ProfileController extends Controller
       return response('{"success":"user followed"}', 200);
     }
     
+    public function unfollow(Request $request, $id) {
+      $this->middleware('auth');
+      $user_id = $request->user()->id;
+      
+      $follow = Follow::where('user_id', $user_id)->where('followee_id', $id)->first();
+      if ($follow) {
+        $follow->delete();
+      }
+      
+      return response('{"success":"user unfollowed"}', 200);
+    }
+    
     public function update(Request $request){
       $this->middleware('auth');
       $user_id = $request->user()->id;

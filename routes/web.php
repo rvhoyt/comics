@@ -45,6 +45,7 @@ Route::post('comment/{id}', [App\Http\Controllers\CommentController::class, 'edi
 
 Route::get('user', [App\Http\Controllers\ProfileController::class, 'index']);
 Route::get('user/{id}/follow', [App\Http\Controllers\ProfileController::class, 'follow']);
+Route::get('user/{id}/unfollow', [App\Http\Controllers\ProfileController::class, 'unfollow']);
 Route::get('user/{id}/{page?}', [App\Http\Controllers\ProfileController::class, 'index']);
 
 Route::post('user', [App\Http\Controllers\ProfileController::class, 'update']);
