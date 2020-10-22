@@ -91,7 +91,7 @@
         @if ($followee->followee->profile && $followee->followee->profile->image)
           <img style="max-height:150px;max-width:150px" src="https://cc-avatars.s3.eu-central-003.backblazeb2.com/{{$followee->followee->profile->image}}"/>
         @else
-          <img style="height:150px;width:150px" src=""/>
+          <img src="/images/profile.jpg" width="150px" style="opacity: 0.5;" alt="No Profile Image"/>
         @endif
         <br/>
         {{$followee->followee->name}}
