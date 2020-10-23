@@ -102,8 +102,6 @@
         <button type="button" @click="addTextbox()">Add Textbox</button>
         
         <div v-if="activeSelectionType === 'textbox'">
-          <button type="button" @click="startPlaceTextboxPoint()">Place text line</button>
-          <br/>
           <label>Font Size:
             <input v-model="fontSizeValue" min="1" max="81" step="1" type="range" @change="textboxProperty('fontSize', $event.target.value)"/>
           </label>

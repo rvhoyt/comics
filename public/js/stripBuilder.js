@@ -105,6 +105,24 @@ const Builder = {
       });
     },
     addTextbox: function() {
+      var moving = false;
+      positionHandler = function(dim, finalMatrix, fabricObject) {
+        finalMatrix[0] = design.getZoom();
+        finalMatrix[3] = design.getZoom();
+        var point = fabric.util.transformPoint({
+          x: this.offsetX + fabricObject.pointX - (fabricObject.width / 2),
+          y: this.offsetY + fabricObject.pointY - (fabricObject.height / 2)}, finalMatrix);
+        return point;
+      };
+      actionHandler = function(ev, transform, x, y) {
+        if (ev.type == 'mousemove') {
+          var obj = transform.target;
+          obj.pointX = x - obj.left - (obj.width / 2);
+          obj.pointY = y - obj.top - (obj.height / 2);
+          obj.dirty = true;
+          design.renderAll();
+        }
+      };
       var textbox = new fabric.Textbox('double click to write...', {
         left: 100,
         top: 100,
@@ -112,13 +130,20 @@ const Builder = {
         textboxBorderSize: 1,
         textboxBorderColor: 'black',
         backgroundColor: 'white',
-        pointX: 50,
-        pointY: 50,
+        pointX: 100,
+        pointY: 100,
         blur: 0,
         invert: 0,
         radius: 0,
         textAlign: 'center',
-        fontFamily: 'Verdana'
+        fontFamily: 'Verdana',
+      });
+      textbox.controls.point = new fabric.Control({
+        positionHandler: positionHandler,
+        actionHandler: actionHandler,
+        actionName: 'movePoint',
+        cursorStyle: 'pointer',
+        cornerStyle: 'circle'
       });
       textbox.setControlsVisibility({
         mt: false,
@@ -498,10 +523,6 @@ const Builder = {
       
       canvas.on('mouse:down', function(opt) {
         var evt = opt.e;
-        if (this.placingPoint) {
-          ctrl.placeTextboxPoint(this.placingPoint, evt.layerX, evt.layerY);
-          this.placingPoint = false;
-        }
       });
       
       canvas.on('mouse:dblclick', function(ev) {
@@ -640,16 +661,6 @@ const Builder = {
         }, 30);
       }, ctrl.customProperties);
     },
-    placeTextboxPoint: function(obj, x, y) {
-      if (!obj || obj.type !== 'textbox') {
-        return;
-      }
-      obj.pointX = x - obj.left;
-      obj.pointY = y - obj.top;
-      obj.dirty = true;
-      design.renderAll();
-      design.setActiveObject(obj);
-    },
     saveGroupElements: function() {
       var ctrl = this;
       if (!design.getActiveObject()) {
@@ -770,12 +781,6 @@ const Builder = {
       canvas.add(rect);
       if (!empty) {
         canvas.sendToBack(rect);
-      }
-    },
-    startPlaceTextboxPoint: function() {
-      var obj = design.getActiveObject();
-      if (obj.type === 'textbox') {
-        design.placingPoint = obj;
       }
     },
     textboxProperty: function(prop, value, obj) {
