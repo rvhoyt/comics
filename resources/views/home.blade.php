@@ -10,7 +10,7 @@
           </div>
           <h1>Comic Crafter</h1>
           @auth
-            <a href="{{ url('/builder') }}">Go to strip builder</a>
+            <a href="{{ url('/builder') }}" class="btn btn-primary">Make a Strip!</a>
           @else
             <span>Please Login to make strips</span>
           @endif
