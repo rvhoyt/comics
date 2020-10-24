@@ -8,7 +8,7 @@
             <div>{{$userCount}} Artists</div>
             <div>{{$stripCount}} Strips</div>
           </div>
-          <h1>Welcome to a Comic Strip builder!</h1>
+          <h1>Comic Crafter</h1>
           @auth
             <a href="{{ url('/builder') }}">Go to strip builder</a>
           @else
