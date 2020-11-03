@@ -161,7 +161,7 @@
     
     <div class="col-sm-12 card">
       <div class="card-body">
-        <canvas id="hiddenCanvas"></canvas>
+        <img v-if="url" :src="url" alt="preview" style="width:682px"/>
       </div>
     </div>
 
