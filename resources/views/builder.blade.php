@@ -37,7 +37,7 @@
     ?>
     <div class="drawer-container" v-show="selectedFolder === 'Library'">
       <div class="draggableImage" draggable="true" @dragstart="drag" v-for="(obj, i) in libraryElements">
-        <img :data-library="i" :src="obj.toDataURL()"/>
+        <img :data-library="i" :src="obj.thumbnail"/>
         <button type="button" class="library-del btn btn-sm btn-danger" @click="deleteLibrary(obj.libraryId)">X</button>
       </div>
     </div>
@@ -164,7 +164,7 @@
         <img v-if="url" :src="url" alt="preview" style="width:682px"/>
       </div>
     </div>
-
+    <canvas style="display:none;" id="library-temp"></canvas>
   </div>
 </div>
 

@@ -872,6 +872,17 @@ const Builder = {
       });
       fabric.util.enlivenObjects(data, function(objects) {
         objects.forEach(function(obj, i) {
+          obj.clone(function(clone) {
+            var temp = new fabric.Canvas('library-temp', {height:obj.height,width:obj.width});
+            clone.top = 0;
+            clone.left = 0;
+            temp.add(clone);
+            temp.setActiveObject(clone);
+            temp.getActiveObject().toActiveSelection();
+            temp.renderAll();
+            temp.remove();
+            obj.thumbnail = temp.toDataURL();
+          }, ctrl.customProperties)
           obj.libraryId = ids[i];
         });
         ctrl.libraryElements = objects;
