@@ -890,6 +890,9 @@ const Builder = {
     },
     zoomCanvas: function(val) {
       design.setZoom(val);
+      if (!this.mainView) {
+        mainCanvas.setZoom(val);
+      }
     }
   },
   mounted() {
