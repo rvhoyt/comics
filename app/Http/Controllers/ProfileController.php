@@ -47,7 +47,7 @@ class ProfileController extends Controller
         
         $user = User::find($id);
         
-        $count = DB::table('strips')->where('user', 1)->count();
+        $count = DB::table('strips')->where('user', $id)->count();
         
         $offset = ((int)$page - 1) * 12;
         
