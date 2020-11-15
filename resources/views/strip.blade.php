@@ -59,6 +59,26 @@
     
     <br/>
     
+    @auth
+    <div class="row">
+      <div class="col-sm-6">
+        <form class="card form" method="POST" action="{{$strip->id}}/comment">
+          <div class="card-header">Add Comment</div>
+          <div class="card-body">
+            @csrf
+            <textarea name="comment" class="form-control" required></textarea>
+            <br/>
+            <button class="btn btn-primary">Comment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    @else
+    <div class="row">
+      <div class="col-sm-12">Please Login to comment</div>
+    </div>
+    @endif
+    
     <div class="row">
       <div class="col-sm-6">
       @foreach ($comments as $comment)
@@ -98,27 +118,6 @@
       @endforeach
       </div>
     </div>
-    
-    
-    @auth
-    <div class="row">
-      <div class="col-sm-6">
-        <form class="card form" method="POST" action="{{$strip->id}}/comment">
-          <div class="card-header">Add Comment</div>
-          <div class="card-body">
-            @csrf
-            <textarea name="comment" class="form-control" required></textarea>
-            <br/>
-            <button class="btn btn-primary">Comment</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    @else
-    <div class="row">
-      <div class="col-sm-12">Please Login to comment</div>
-    </div>
-    @endif
 </div>
 @endsection
 
