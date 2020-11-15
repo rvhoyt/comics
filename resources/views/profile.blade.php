@@ -84,7 +84,7 @@
     @endif
   </div>
   
-  <div class="col-sm-12">
+  <div class="col-sm-12" style="clear:both">
     <h3>Following</h3>
     <div class="row">
       @foreach ($followees as $followee)
