@@ -95,7 +95,8 @@ const Builder = {
           left: x,
           top: y,
           blur: 0,
-          invert: 0
+          invert: 0,
+          borderColor:'red'
         });
 
         img.perPixelTargetFind = true;
@@ -138,6 +139,7 @@ const Builder = {
         radius: 0,
         textAlign: 'center',
         fontFamily: 'Verdana',
+        borderColor:'red'
       });
       textbox.controls.point = new fabric.Control({
         positionHandler: positionHandler,
@@ -380,6 +382,7 @@ const Builder = {
       g.perPixelTargetFind = true;
       g.blur = 0;
       g.invert = 0;
+      g.borderColor = 'red';
       function handleMasks (obj) {
         if (obj.isMasked) {
           obj.shouldCache = function() {return true};
