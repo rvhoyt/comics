@@ -13,7 +13,7 @@ const Builder = {
       canvasHeight: undefined,
       canvasWidth: undefined,
       colors: ['000000', 'ff0000', '00ff00', '00f', 'ffff00', '00ffff', 'ff00ff'],
-      customProperties: ['active', 'blur', 'invert', 'isMasked', 'textboxBorderSize', 'textboxBorderColor', 'radius', 'pointX', 'pointY'],
+      customProperties: ['active', 'blur', 'invert', 'isMasked', 'textboxBorderSize', 'textboxBorderColor', 'radius', 'pointX', 'pointY', 'borderColor'],
       description: '',
       error: '',
       fontFamilyValue: 'Verdana',
