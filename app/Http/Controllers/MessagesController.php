@@ -44,7 +44,7 @@ class MessagesController extends Controller
     public function show($id)
     {
         try {
-            $thread = Thread::findOrFail($id);
+            $thread = Thread::forUser(Auth::id())->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             Session::flash('error_message', 'The thread with ID: ' . $id . ' was not found.');
 
