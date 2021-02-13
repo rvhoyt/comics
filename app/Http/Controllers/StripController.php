@@ -75,17 +75,17 @@ class StripController extends Controller
         $found = false;
         foreach($strips as $s) {
           if ($found) {
-            if ($next !== '') {
+            if ($prev !== '') {
               continue;
             }
-            $next = $s->id;
+            $prev = $s->id;
             continue;
           }
           if ($s->id == $id) {
             $found = true;
             continue;
           }
-          $prev = $s->id;
+          $next = $s->id;
         }
         
         $sourceParams = [
