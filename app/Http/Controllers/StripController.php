@@ -7,6 +7,7 @@ use App\Models\Strip;
 use App\Models\Comment;
 use App\Models\Like;
 use App\Models\User;
+use App\Models\Follow;
 
 class StripController extends Controller
 {
@@ -30,9 +31,70 @@ class StripController extends Controller
         if (!is_numeric($id)) {
           return redirect('/');
         }
+        
         $strip = Strip::find($id);
         
         $author = User::find($strip->user);
+        
+        
+        
+        $source = 'none';
+        $validSources = ['following', 'user'];
+        if (isset($request->source) && in_array($request->source, $validSources)) {
+          $source = $request->source;
+        }
+        
+        if ($source === 'following') {
+          if (!$request->user()) {
+            $source = 'none';
+          } else {
+            $user_id = $request->user()->id;
+            $followees = Follow::where('user_id', '=', $user_id)->select('followee_id')->get();
+            $followee_ids = [];
+            foreach($followees as $f) {
+              $followee_ids[] = $f->followee_id;
+            }
+            
+            $strips = Strip
+              ::whereIn('user', $followee_ids)
+              ->orderBy('strips.created_at', 'desc')
+              ->get();
+          }
+        }
+        
+        if ($source === 'user') {
+          $strips = Strip::where('user', $author->id)->orderBy('created_at', 'DESC')->get();
+        }
+        
+        if ($source === 'none') {
+          $strips = Strip::orderBy('created_at', 'desc')->get();
+        }
+        
+        $prev = '';
+        $next = '';
+        $found = false;
+        foreach($strips as $strip) {
+          if ($found) {
+            if ($next !== '') {
+              continue;
+            }
+            $next = $strip->id;
+            continue;
+          }
+          if ($strip->id == $id) {
+            $found = true;
+            continue;
+          }
+          $prev = $strip->id;
+        }
+        
+        $sourceParams = [
+          'none' => '',
+          'following' => '?source=following',
+          'user' => '?source=user'
+        ];
+        $sourceParam = $sourceParams[$source];
+        
         
         $comments = Comment::where('strip_id', (int)$id)->orderBy('created_at', 'DESC')->get();
         
@@ -49,7 +111,10 @@ class StripController extends Controller
           'strip' => $strip,
           'comments' => $comments,
           'likes' => $likes,
-          'alreadyLiked' => $alreadyLiked
+          'alreadyLiked' => $alreadyLiked,
+          'next' => $next,
+          'prev' => $prev,
+          'source' => $sourceParam
         ]);
     }
     

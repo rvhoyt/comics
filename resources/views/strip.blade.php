@@ -26,6 +26,14 @@
             </div>
           </div>
         </div>
+        <div class="col-sm-12">
+          @if ($prev)
+            <a href="/strips/{{$prev}}{{$source}}" class="btn btn-sm btn-outline-info float-left">Prev</a>
+          @endif
+          @if ($next)
+            <a href="/strips/{{$next}}{{$source}}" class="btn btn-sm btn-outline-info float-right">Next</a>
+          @endif
+        </div>
         <div class="card-body text-center">
           @if (auth()->user() && auth()->user()->id === $strip->user)
             <form id="edit-form" class="form" method="POST" style="display:none;">
