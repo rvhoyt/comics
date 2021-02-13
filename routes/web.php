@@ -23,6 +23,10 @@ Auth::routes();
 
 Route::get('home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
+
+Route::get('search/{id}', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
+
 Route::get('builder', [App\Http\Controllers\BuilderController::class, 'index'])->name('builder');
 
 Route::post('builder', [App\Http\Controllers\BuilderController::class, 'save']);

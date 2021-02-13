@@ -35,7 +35,14 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                      <li>
+                      <form class="input-group" action="/search">
+                        <input type="search" class="form-control" name="q" placeholder="Search Strips">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" type="submit">Search</button>
+                        </div>
+                      </form>
+                      </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
