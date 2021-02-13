@@ -53,3 +53,11 @@ Route::post('user', [App\Http\Controllers\ProfileController::class, 'update']);
 Route::get('library',  [App\Http\Controllers\LibraryController::class, 'index']);
 Route::post('library', [App\Http\Controllers\LibraryController::class, 'save']);
 Route::get('library/{id}/delete', [App\Http\Controllers\LibraryController::class, 'delete']);
+
+Route::group(['prefix' => 'messages'], function () {
+    Route::get('/', ['as' => 'messages', 'uses' => 'App\Http\Controllers\MessagesController@index']);
+    Route::get('create', ['as' => 'messages.create', 'uses' => 'App\Http\Controllers\MessagesController@create']);
+    Route::post('/', ['as' => 'messages.store', 'uses' => 'App\Http\Controllers\MessagesController@store']);
+    Route::get('{id}', ['as' => 'messages.show', 'uses' => 'App\Http\Controllers\MessagesController@show']);
+    Route::put('{id}', ['as' => 'messages.update', 'uses' => 'App\Http\Controllers\MessagesController@update']);
+});
