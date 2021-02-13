@@ -77,7 +77,6 @@ class MessagesController extends Controller
     public function create()
     {
         //$users = User::where('id', '!=', Auth::id())->get();
-        $followers = Follow::find('user_id', Auth::id());
         $users = DB::table('users')
             ->join('follows', 'users.id', '=', 'follows.user_id')
             ->where('followee_id', Auth::id())

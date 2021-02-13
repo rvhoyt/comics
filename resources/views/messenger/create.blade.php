@@ -19,8 +19,8 @@
             </div>
 
             @if($users->count() > 0)
-              <select name="recipients[]" class="form-control">
-                <option></option>
+              <label class="control-label">Thread Members</label>
+              <select name="recipients[]" class="form-control" multiple>
                 @foreach($users as $user)
                   <option value="{{$user->id}}">{!!$user->name!!}</option>
                 @endforeach
