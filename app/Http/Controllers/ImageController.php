@@ -36,7 +36,13 @@ class ImageController extends Controller
       $file = 'strip-images/' . $image;
       
       if (!file_exists($file)) {
-        file_put_contents($file, fopen('https://strips.s3.eu-central-003.backblazeb2.com/' . $image, 'r'));
+        $opts=array(
+            "ssl"=>array(
+                "verify_peer"=>false,
+                "verify_peer_name"=>false,
+            ),
+        ); 
+        file_put_contents($file, fopen('https://strips.s3.eu-central-003.backblazeb2.com/' . $image, 'r', false, stream_context_create($opts)));
       }
       
       return response()->file($file);
