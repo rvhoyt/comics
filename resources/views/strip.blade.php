@@ -50,7 +50,7 @@
             </form>
           @endif
           <img
-            src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}"
+            src="/images/{{ $strip->url }}"
             alt="{{ $strip->title}}" width="682px"/>
           <div class="col-sm-12">
             <p>{{$strip->description}}</p>
