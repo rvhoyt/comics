@@ -58,7 +58,7 @@ Route::get('library',  [App\Http\Controllers\LibraryController::class, 'index'])
 Route::post('library', [App\Http\Controllers\LibraryController::class, 'save']);
 Route::get('library/{id}/delete', [App\Http\Controllers\LibraryController::class, 'delete']);
 
-Route::get('images/{image}', [App\Http\Controllers\ImageController::class, 'index']);
+Route::get('strip-images/{image}', [App\Http\Controllers\ImageController::class, 'index']);
 
 Route::group(['prefix' => 'messages'], function () {
     Route::get('/', ['as' => 'messages', 'uses' => 'App\Http\Controllers\MessagesController@index']);

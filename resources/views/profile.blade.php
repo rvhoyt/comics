@@ -58,7 +58,7 @@
         <div class="col-md-2 mb-3">
           <div class="card" title="{{$strip->title}}" style="height:200px;">
             <a href="/strips/{{ $strip->id }}?source=user" class="text-center">
-              <img class="thumbnail-image" src="/images/{{ $strip->url }}" alt="{{ $strip->title}}"/>
+              <img class="thumbnail-image" src="/strip-images/{{ $strip->url }}" alt="{{ $strip->title}}"/>
             </a>
             <div class="row">
               <div class="col-sm-3">

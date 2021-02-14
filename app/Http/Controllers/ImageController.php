@@ -33,7 +33,7 @@ class ImageController extends Controller
             ->view('errors.404',$data,404); 
       }
       
-      $file = 'images/' . $image;
+      $file = '/public/strip-images/' . $image;
       
       if (!file_exists($file)) {
         file_put_contents($file, fopen('https://strips.s3.eu-central-003.backblazeb2.com/' . $image, 'r'));

@@ -50,7 +50,7 @@
             </form>
           @endif
           <img
-            src="/images/{{ $strip->url }}"
+            src="/strip-images/{{ $strip->url }}"
             alt="{{ $strip->title}}" width="682px"/>
           <div class="col-sm-12">
             <p>{{$strip->description}}</p>
