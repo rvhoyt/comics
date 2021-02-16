@@ -66,6 +66,7 @@
             <div class="row" style="padding:10px;">
               <div class="col-sm-12">
                 <a href="/strips/{{ $strip->id }}?source=user"><strong>{{ $strip->title }}</strong></a>
+                <br/>
                 <a href="/user/{{$strip->owner->id}}">{{$strip->owner->name}}</a>
               </div>
             </div>
