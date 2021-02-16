@@ -59,7 +59,8 @@ const Builder = {
         isFrame: true,
         blur:0,
         opacity: 1,
-        inverted: 0
+        inverted: 0,
+        strokeWidth: 2
       });
       var frame = {
         id: id,
