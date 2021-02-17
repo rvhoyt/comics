@@ -60,7 +60,7 @@ const Builder = {
         blur:0,
         opacity: 1,
         inverted: 0,
-        strokeWidth: 2
+        strokeWidth: 1
       });
       var frame = {
         id: id,
@@ -279,12 +279,12 @@ const Builder = {
         width: frame.placeholder.width,
         height: frame.placeholder.height,
         format: 'png',
-        multiplier: ratio * 2
+        multiplier: ratio * 4
       });
       frame.placeholder.fill = new fabric.Pattern({
         source: img,
         repeat: 'no-repeat',
-        patternTransform: [1/ratio/2, 0, 0, 1/ratio/2, 0, 0]
+        patternTransform: [1/ratio/4, 0, 0, 1/ratio/4, 0, 0]
       });
       setTimeout(function() {
         frame.placeholder.dirty = true;
