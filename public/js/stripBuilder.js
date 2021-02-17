@@ -59,7 +59,8 @@ const Builder = {
         isFrame: true,
         blur:0,
         opacity: 1,
-        inverted: 0
+        inverted: 0,
+        strokeWidth: 2
       });
       var frame = {
         id: id,
@@ -278,12 +279,13 @@ const Builder = {
         width: frame.placeholder.width,
         height: frame.placeholder.height,
         format: 'png',
-        multiplier: ratio
+        multiplier: ratio * 2
       });
+      console.log(img);
       frame.placeholder.fill = new fabric.Pattern({
         source: img,
         repeat: 'no-repeat',
-        patternTransform: [1/ratio, 0, 0, 1/ratio, 0, 0]
+        patternTransform: [1/ratio/2, 0, 0, 1/ratio/2, 0, 0]
       });
       setTimeout(function() {
         frame.placeholder.dirty = true;
