@@ -281,7 +281,6 @@ const Builder = {
         format: 'png',
         multiplier: ratio * 2
       });
-      console.log(img);
       frame.placeholder.fill = new fabric.Pattern({
         source: img,
         repeat: 'no-repeat',
