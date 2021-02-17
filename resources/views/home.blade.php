@@ -29,16 +29,14 @@
           @foreach ($followingStrips as $strip)
               <div class="col-md-2 mb-3">
                 <div class="card" title="{{$strip->title}}" style="height:200px;">
+                  <div class="badge badge-light" style="padding:10px;margin:5px;margin-top:0;position:absolute;bottom:0" title="Likes">
+                    {{count($strip->likes)}}
+                  </div>
                   <a href="/strips/{{ $strip->id }}?source=following" class="text-center">
-                    <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
+                    <img class="thumbnail-image" src="/strip-images/{{ $strip->url }}" alt="{{ $strip->title}}"/>
                   </a>
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <div class="float-left badge badge-light" style="padding:10px;margin:5px;margin-top:0">
-                      {{count($strip->likes)}}
-                      </div>
-                    </div>
-                    <div class="col-sm-8">
+                  <div class="row" style="padding:10px;">
+                    <div class="col-sm-12">
                       <a href="/strips/{{ $strip->id }}?source=following"><strong>{{ $strip->title }}</strong></a>
                       <br/>
                       <a href="/user/{{$strip->owner->id}}">{{$strip->owner->name}}</a>
@@ -69,16 +67,14 @@
           @foreach ($strips as $strip)
               <div class="col-md-2 mb-3">
                 <div class="card" title="{{$strip->title}}" style="height:200px;">
+                  <div class="badge badge-light" style="padding:10px;margin:5px;margin-top:0;position:absolute;bottom:0" title="Likes">
+                    {{count($strip->likes)}}
+                  </div>
                   <a href="/strips/{{ $strip->id }}" class="text-center">
-                    <img class="thumbnail-image" src="https://strips.s3.eu-central-003.backblazeb2.com/{{ $strip->url }}" alt="{{ $strip->title}}"/>
+                    <img class="thumbnail-image" src="/strip-images/{{ $strip->url }}" alt="{{ $strip->title}}"/>
                   </a>
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <div class="float-left badge badge-light" style="padding:10px;margin:5px;margin-top:0">
-                      {{count($strip->likes)}}
-                      </div>
-                    </div>
-                    <div class="col-sm-8">
+                  <div class="row" style="padding:10px;">
+                    <div class="col-sm-12">
                       <a href="/strips/{{ $strip->id }}"><strong>{{ $strip->title }}</strong></a>
                       <br/>
                       <a href="/user/{{$strip->owner->id}}">{{$strip->owner->name}}</a>

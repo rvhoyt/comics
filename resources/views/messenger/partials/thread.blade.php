@@ -1,7 +1,7 @@
 <?php $class = $thread->isUnread(Auth::id()) ? 'alert-info' : ''; ?>
 
-<div class="media alert {{ $class }}">
-    <h4 class="media-heading">
+<div class="panel alert {{ $class }}">
+    <h4 class="panel-heading">
         <a href="{{ route('messages.show', $thread->id) }}">{{ $thread->subject }}</a>
         ({{ $thread->userUnreadMessagesCount(Auth::id()) }} unread)</h4>
     <p>
