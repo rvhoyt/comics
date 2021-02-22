@@ -279,12 +279,12 @@ const Builder = {
         width: frame.placeholder.width,
         height: frame.placeholder.height,
         format: 'png',
-        multiplier: ratio * 4
+        multiplier: ratio * 1
       });
       frame.placeholder.fill = new fabric.Pattern({
         source: img,
         repeat: 'no-repeat',
-        patternTransform: [1/ratio/4, 0, 0, 1/ratio/4, 0, 0]
+        patternTransform: [1/ratio/1, 0, 0, 1/ratio/1, 0, 0]
       });
       setTimeout(function() {
         frame.placeholder.dirty = true;
