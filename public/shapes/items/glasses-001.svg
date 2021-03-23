@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="glasses-001.svg"
+   id="svg14"
+   version="1.1"
+   height="31.143999"
+   width="83.000992">
+  <metadata
+     id="metadata18">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     inkscape:current-layer="svg14"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:cy="10.309725"
+     inkscape:cx="55.009421"
+     inkscape:zoom="10.685169"
+     fit-margin-bottom="0"
+     fit-margin-right="0"
+     fit-margin-left="0"
+     fit-margin-top="0"
+     showgrid="false"
+     id="namedview16"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <defs
+     id="defs2" />
+  <path
+     sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccc"
+     id="path843"
+     d="M 0.14901435,15.497492 V 0 H 15.71961 31.290204 c 0.02577,4.8926377 0.05155,9.7852753 0.07732,14.677913 l 8.940861,-0.03522 c 3.799867,-0.01247 7.599713,-0.03307 11.399598,-0.03925 V 0 h 15.571999 15.572 v 15.497492 15.497493 h -15.572 l -15.805968,0.0234 c 0.06717,-4.629548 0.03456,-9.384047 0.0477,-13.907301 -0.102447,-0.0316 -4.679051,-0.05554 -10.170229,-0.0532 l -9.983962,0.0043 -0.07746,13.932839 H 15.71954 0.14901435 Z M 29.355827,2.0862009 H 15.795521 2.2352152 V 15.633274 29.180346 l 13.5603058,0.002 13.560306,0.002 z M 80.765777,15.633255 V 2.0862009 H 67.205471 53.645165 V 29.184308 l 13.560306,-0.002 13.560306,-0.002 V 15.633273 Z"
+     style="fill:#0000d3;stroke-width:0.149014;fill-opacity:1" />
+</svg>
