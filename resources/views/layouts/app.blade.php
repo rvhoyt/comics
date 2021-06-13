@@ -20,6 +20,28 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    
+    @if (Route::has('strip'))
+      <meta property="og:title" content="{{$strip->title}}">
+      <meta property="og:description" content="{{$strip->description}}">
+      <meta property="og:image" content="/strip-images/{{ $strip->url }}">
+      <meta property="og:url" content="{{URL::current()}}">
+      
+      <meta name="twitter:title" content="{{$strip->title}}">
+      <meta name="twitter:description" content="{{$strip->description}}">
+      <meta name="twitter:image" content="/strip-images/{{ $strip->url }}">
+      <meta name="twitter:card" content="summary_large_image">
+    @else
+      <meta property="og:title" content="Comic Crafter">
+      <meta property="og:description" content="Create and share comics with your friends.">
+      <meta property="og:image" content="https://comiccrafter.com/strip-images/5-1617648166.png">
+      <meta property="og:url" content="https://comiccrafter.com">
+      
+      <meta name="twitter:title" content="Comic Crafter">
+      <meta name="twitter:description" content="Create and share comics with your friends.">
+      <meta name="twitter:image" content="https://comiccrafter.com/strip-images/5-1617648166.png">
+      <meta name="twitter:card" content="summary_large_image">
+    @endif
 </head>
 <body>
     <div id="app">

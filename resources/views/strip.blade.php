@@ -55,11 +55,14 @@
           <div class="col-sm-12">
             <p>{{$strip->description}}</p>
           </div>
-          <div class="col-sm-12">
+          <div class="col-sm-12 share-icon">
             <button type="button" class="@if(!$alreadyLiked) like @else disabled @endif btn btn-primary float-right">
               Like
               <span class="badge badge-light likes">{{count($likes)}}</span>
             </button>
+            &nbsp;
+            <a class="btn btn-primary float-right" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{URL::current()}}">{!! file_get_contents('images/fb.svg') !!} Share</a>&nbsp;
+            <a class="btn btn-primary float-right" target="_blank" href="https://twitter.com/intent/tweet?url={{URL::current()}}&text={{$strip->title}}">{!! file_get_contents('images/twitter.svg') !!} Share</a>
           </div>
         </div>
       </div>

@@ -10978,4 +10978,12 @@ a.text-dark:focus {
   border: 1px solid grey;
   cursor: pointer;
 }
-  
+.share-icon a {
+  margin: 0 5px;
+}
+.share-icon svg {
+  display: inline;
+  height: 18px;
+  margin: 0 auto;
+  fill: #fff;
+}
