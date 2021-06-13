@@ -23,7 +23,7 @@
     
       <meta property="og:type" content="website" />
       <meta name="twitter:card" content="summary_large_image">
-    @if (Route::has('strip'))
+    @if (Route::has('strips'))
       <meta property="og:title" content="{{$strip->title}}">
       <meta property="og:description" content="{{$strip->description}}">
       <meta property="og:image" content="https://comiccrafter.com/strip-images/{{ $strip->url }}">
