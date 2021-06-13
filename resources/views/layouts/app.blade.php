@@ -21,6 +21,8 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary_large_image">
     @if (Route::has('strip'))
       <meta property="og:title" content="{{$strip->title}}">
       <meta property="og:description" content="{{$strip->description}}">
@@ -30,7 +32,6 @@
       <meta name="twitter:title" content="{{$strip->title}}">
       <meta name="twitter:description" content="{{$strip->description}}">
       <meta name="twitter:image" content="https://comiccrafter.com/strip-images/{{ $strip->url }}">
-      <meta name="twitter:card" content="summary_large_image">
     @else
       <meta property="og:title" content="Comic Crafter">
       <meta property="og:description" content="Create and share comics with your friends.">
@@ -40,7 +41,7 @@
       <meta name="twitter:title" content="Comic Crafter">
       <meta name="twitter:description" content="Create and share comics with your friends.">
       <meta name="twitter:image" content="https://comiccrafter.com/strip-images/5-1617648166.png">
-      <meta name="twitter:card" content="summary_large_image">
+      
     @endif
 </head>
 <body>
