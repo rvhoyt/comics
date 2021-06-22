@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="89.942pt" height="90pt" version="1.0" viewBox="0 0 89.942 90" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <metadata>Created by potrace 1.16, written by Peter Selinger 2001-2019
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <ellipse cx="44.143" cy="44.429" rx="35.557" ry="35.414" fill="#fff" stroke-width=".75118"/>
+ <g transform="matrix(.058006 0 0 -.058006 -161.72 269.49)">
+  <path d="m3400 4631c-294-64-516-282-595-581-22-84-23-249-1-352 55-260 263-484 526-568 346-110 726 41 916 366 62 106 101 290 91 428-9 113-29 185-88 304-97 198-263 333-484 394-104 28-260 32-365 9zm304-217c95-25 174-71 252-149 112-113 164-237 164-395s-52-283-165-395c-251-252-663-212-858 83-71 106-91 175-91 312 0 95 4 127 23 180 61 173 207 313 376 361 77 23 218 24 299 3z"/>
+  <path d="m3450 4254c-112-30-198-106-252-220-76-162-34-348 108-473 70-61 140-85 254-85 122-1 186 23 270 101 80 74 121 157 128 257 8 122-21 212-97 297-103 118-258 164-411 123z"/>
+ </g>
+</svg>
