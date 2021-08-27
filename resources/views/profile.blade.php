@@ -23,7 +23,7 @@
       <img src="/images/profile.jpg" width="150px" style="opacity: 0.5;" alt="No Profile Image"/>
       @endif
     </div>
-    <div class="col-sm-10">
+    <div class="col-sm-6">
       @if ($profile && $profile->description)
       {{$profile->description}}
       @else
@@ -31,6 +31,21 @@
         <br/>
         Such a mysterious person...
       @endif
+    </div>
+    <div class="col-sm-4">
+      <div class="card">
+       @if($stripCount)
+        <div class="card-body">
+          Strips: {{$stripCount}}
+          <br/>
+          Most Liked Strip: <a href="/strips/{{$popularStrip->id}}">{{$popularStrip->title}}</a>
+        </div>
+        @else
+        <div class="card-body">
+          No strips made.
+        </div>
+        @endif
+      </div>
     </div>
   </div>
   <br/>

@@ -57,6 +57,17 @@ class ProfileController extends Controller
         }
         
         $strips = Strip::where('user', (int)$id)->orderBy('created_at', 'DESC')->offset($offset)->limit(12)->get();
+
+        $mostPopular = DB::table('strips')
+          ->leftJoin('likes', 'strips.id', '=', 'likes.strip_id')
+          ->where('user', $id)
+          ->groupBy('strips.id', 'title')
+          ->select(DB::raw('COUNT(*) AS likes, strips.id AS id'), 'title')
+          ->orderBy('likes', 'DESC')
+          ->limit(1)
+          ->get();
+        
+        $mostPopular = $mostPopular[0] ?? false;
         
         $profile = Profile::where('user_id', $id)->first();
         
@@ -64,8 +75,10 @@ class ProfileController extends Controller
         
         return view('profile', [
           'user' => $user,
+          'popularStrip' => $mostPopular,
           'profile' => $profile,
           'strips' => $strips,
+          'stripCount' => $count,
           'nextPage' => $nextPage,
           'currentPage' => $page,
           'followees' => $followees,
