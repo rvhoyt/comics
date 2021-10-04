@@ -877,25 +877,27 @@ const Builder = {
         obj = replaceSrc(obj);
         return obj;
       });
-      fabric.util.enlivenObjects(data, function(objects) {
-        console.log('Library loaded: ' + ((new Date()).getTime() - time) + 'ms');
-        objects.forEach(function(obj, i) {
-          obj.clone(function(clone) {
-            var temp = new fabric.Canvas('library-temp', {height:obj.height,width:obj.width});
-            clone.top = 0;
-            clone.left = 0;
-            temp.add(clone);
-            temp.setActiveObject(clone);
-            temp.getActiveObject().toActiveSelection();
-            temp.renderAll();
-            temp.remove();
-            obj.thumbnail = temp.toDataURL();
-          }, ctrl.customProperties)
-          obj.libraryId = ids[i];
+      setTimeout(function() {
+        fabric.util.enlivenObjects(data, function(objects) {
+          console.log('Library loaded: ' + ((new Date()).getTime() - time) + 'ms');
+          objects.forEach(function(obj, i) {
+            obj.clone(function(clone) {
+              var temp = new fabric.Canvas('library-temp', {height:obj.height,width:obj.width});
+              clone.top = 0;
+              clone.left = 0;
+              temp.add(clone);
+              temp.setActiveObject(clone);
+              temp.getActiveObject().toActiveSelection();
+              temp.renderAll();
+              temp.remove();
+              obj.thumbnail = temp.toDataURL();
+            }, ctrl.customProperties)
+            obj.libraryId = ids[i];
+          });
+          ctrl.libraryElements = objects;
+          console.log('Library rendered: ' + ((new Date()).getTime() - time) + 'ms');
         });
-        ctrl.libraryElements = objects;
-        console.log('Library rendered: ' + ((new Date()).getTime() - time) + 'ms');
-      });
+      }, 1);
     },
     zoomCanvas: function(val) {
       design.setZoom(val);
