@@ -15,7 +15,7 @@
       foreach($folders as $folder) {
         $files = scandir('shapes/' . $folder);
         ?>
-        <div v-show="selectedFolder === '<?php echo ucfirst($folder);?>'" class="drawer-container">
+        <div v-show="selectedFolder === '<?php echo ucfirst($folder);?>'" class="drawer-container" ref="selectedFolder">
         <?php
         
         foreach($files as $file) {

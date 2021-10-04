@@ -68,9 +68,20 @@ class HomeController extends Controller
           }
         }
         
+        $lastWeek = new \DateTime('last week');
+        $lastWeek = date_format($lastWeek, 'Y-m-d H:i:s');
+        
+        $popularStrips = Strip
+            ::where('strips.created_at', '>=', $lastWeek)
+            ->withCount('likes')
+            ->orderBy('likes_count', 'desc')
+            ->take(3)
+            ->get();
+        
         return view('home', [
           'strips' => $strips,
           'followingStrips' => $followingStrips,
+          'popularStrips' => $popularStrips,
           'nextPage' => $nextPage,
           'nextPageFollow' => $nextPageFollow,
           'currentPage' => $page,

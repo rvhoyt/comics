@@ -21,6 +21,7 @@ const Builder = {
       frames: [],
       frameView: undefined,
       imgSrcs: [],
+      libraryCache: {},
       libraryElements: [],
       libaryFolders: ['Items', 'Shapes', 'Characters', 'Pieces', 'Library'],
       mainCanvas: undefined,
@@ -856,6 +857,8 @@ const Builder = {
     },
     updateLibrary: function(data) {
       var ctrl = this;
+      var time = (new Date()).getTime();
+      console.log('Library fetched');
       function replaceSrc(data) {
         data.objects.map(function(obj) {
           if (obj.type === 'image') {
@@ -875,6 +878,7 @@ const Builder = {
         return obj;
       });
       fabric.util.enlivenObjects(data, function(objects) {
+        console.log('Library loaded: ' + ((new Date()).getTime() - time) + 'ms');
         objects.forEach(function(obj, i) {
           obj.clone(function(clone) {
             var temp = new fabric.Canvas('library-temp', {height:obj.height,width:obj.width});
@@ -890,6 +894,7 @@ const Builder = {
           obj.libraryId = ids[i];
         });
         ctrl.libraryElements = objects;
+        console.log('Library rendered: ' + ((new Date()).getTime() - time) + 'ms');
       });
     },
     zoomCanvas: function(val) {
@@ -906,13 +911,17 @@ const Builder = {
     var images = document.querySelectorAll('.draggableImage');
     var imgSrcs = [];
     /*convert all svg xml into images*/
-    [].forEach.call(images, function(div) {
+    [].forEach.call(images, function(div, i) {
       var src = div.dataset.src;
       var file = div.dataset.file;
+      delete div.dataset.src;
       imgSrcs.push({src: src, file: file});
-      div.innerHTML = '<img src="' + src + '"/>';
+      setTimeout(function() {
+        div.innerHTML = '<img src="' + src + '"/>';
+      }, i*3);
     });
     this.imgSrcs = imgSrcs;
+    this.selectedFolder = 'Items';
     
     /*start listening to keys*/
     document.addEventListener('keydown', this.handleShortcuts);

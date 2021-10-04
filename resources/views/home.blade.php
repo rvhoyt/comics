@@ -17,7 +17,32 @@
           <br/><br/>
           <hr/>
           <br/><br/>
-        </div>        
+        </div>
+        
+        <div class="col-sm-12 row">
+          <div class="col-sm-12">
+            <h2>Popular in the Last Week</h2>
+          </div>
+          @foreach ($popularStrips as $strip)
+              <div class="col-md-2 mb-3">
+                <div class="card" title="{{$strip->title}}" style="height:200px;">
+                  <div class="badge badge-light" style="padding:10px;margin:5px;margin-top:0;position:absolute;bottom:0" title="Likes">
+                    {{count($strip->likes)}}
+                  </div>
+                  <a href="/strips/{{ $strip->id }}?source=following" class="text-center">
+                    <img class="thumbnail-image" src="/strip-images/{{ $strip->url }}" alt="{{ $strip->title}}"/>
+                  </a>
+                  <div class="row" style="padding:10px;">
+                    <div class="col-sm-12">
+                      <a href="/strips/{{ $strip->id }}?source=following"><strong>{{ $strip->title }}</strong></a>
+                      <br/>
+                      <a href="/user/{{$strip->owner->id}}">{{$strip->owner->name}}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          @endforeach
+        </div>
         
         <div class="col-sm-12 row">
           <div class="col-sm-12">
