@@ -32,7 +32,8 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('partials.recentcomments', function($view) {
           $request = app(\Illuminate\Http\Request::class);
           $id = $request->user()->id;
-          $comments = Comment::join('strips', 'strips.id', '=', 'comments.strip_id')
+          $comments = Comment::select('comments.*', 'strips.id')
+            ->join('strips', 'strips.id', '=', 'comments.strip_id')
             ->where('user', $id)
             ->orderBy('comments.created_at', 'DESC')
             ->limit(5)
