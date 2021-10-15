@@ -160,8 +160,38 @@
     </div>
     
     <div class="col-sm-12 card">
-      <div class="card-body">
-        <img v-if="url" :src="url" alt="preview" style="width:682px"/>
+      <div class="card-body" v-if="url">
+        <label>Apply post-effects <select v-model="postFx" @change="applyPostFx">
+          <option value="">None</option>
+          <option value="halftone">Color Halftone</option>
+          <option value="denoise">Denoise</option>
+          <option value="dot">Dot Screen</option>
+          <option value="hex">Hexaganate</option>
+          <option value="hue">Hue / Saturation</option>
+          <option value="sepia">Sepia</option>
+        </select>
+        <div>
+          <label v-if="postFx === 'halftone' || postFx === 'dot'">Dot Size:
+            <input type="range" min="1" max="20" v-model.number="fxOptions.dotSize" @change="applyPostFx"/> @{{fxOptions.dotSize}}
+          </label>
+          <label v-if="postFx === 'hex'">Hex Size:
+            <input type="range" min="1" max="40" v-model.number="fxOptions.hexSize" @change="applyPostFx"/> @{{fxOptions.hexSize}}
+          </label>
+          <label v-if="postFx === 'denoise'">Strength:
+            <input type="range" min="1" max="30" v-model.number="fxOptions.denoiseAmount" @change="applyPostFx"/> @{{fxOptions.denoiseAmount}}
+          </label>
+          <div v-if="postFx === 'hue'">
+            <label>Hue:
+              <input type="range" min="-1" max="1" step="0.01" v-model.number="fxOptions.hue" @change="applyPostFx"/> @{{fxOptions.hue}}
+            </label>
+            <br/>
+            <label>Saturation:
+              <input type="range" min="-1" max="1" step="0.01" v-model.number="fxOptions.saturation" @change="applyPostFx"/> @{{fxOptions.saturation}}
+            </label>
+          </div>
+        </div>
+        <br/>
+        <img :src="url" alt="preview" style="width:682px" ref="finalImage"/>
       </div>
     </div>
     <canvas style="display:none;" id="library-temp"></canvas>
@@ -174,5 +204,6 @@
 @section('myjsfile')
   <script src="js/vue.min.js"></script>
   <script src="js/fabric.min.js"></script>
+  <script src="js/glfx.js"></script>
   <script src="js/stripBuilder.js"></script>
 @stop

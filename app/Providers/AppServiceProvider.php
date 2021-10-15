@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Comment;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +29,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
+        view()->composer('partials.recentcomments', function($view) {
+          $request = app(\Illuminate\Http\Request::class);
+          $id = $request->user()->id;
+          $comments = Comment::join('strips', 'strips.id', '=', 'comments.strip_id')
+            ->where('user', $id)
+            ->orderBy('comments.created_at', 'DESC')
+            ->limit(5)
+            ->get();
+          $view->with('comments', $comments);
+        });
     }
 }

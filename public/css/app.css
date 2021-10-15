@@ -10918,6 +10918,7 @@ a.text-dark:focus {
   overflow: hidden;
   max-height: 100px;
   position:relative;
+  cursor: move;
 }
 .draggableImage img{
   max-height: 120px;

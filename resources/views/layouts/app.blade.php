@@ -82,6 +82,14 @@
                                 </li>
                             @endif
                         @else
+                            <li class="nav-item dropdown">
+                              <a id="navbarDropdownComments" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                Recent Comments
+                              </a>
+                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownComments">
+                                @include('partials.recentcomments')
+                              </div>
+                            </li>
                             <li class="nav-item">
                               <a href="/messages" class="nav-link {{Auth::user()->newThreadsCount() > 0 ? 'font-weight-bold' : ''}}">{{Auth::user()->newThreadsCount()}} Messages</a>
                             </li>

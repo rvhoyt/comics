@@ -20,6 +20,15 @@ const Builder = {
       fontSizeValue: 12,
       frames: [],
       frameView: undefined,
+      fx: fx.canvas(),
+      fxOptions: {
+        denoiseAmount: 15,
+        dotSize: 2,
+        hexSize: 20,
+        hue: 0,
+        saturation: 0,
+        inkSize: 0.25
+      },
       imgSrcs: [],
       libraryCache: {},
       libraryElements: [],
@@ -27,11 +36,13 @@ const Builder = {
       mainCanvas: undefined,
       mainView: true,
       opacityValue: 1,
+      postFx: '',
       radiusValue: 0,
       selectedFolder: 'Items',
       submitting: false,
       title: '',
       url: '',
+      urlOrig: '',
       zoomValue: 1
     }
   },
@@ -159,6 +170,38 @@ const Builder = {
         tr: false,
       });
       design.add(textbox);
+    },
+    applyPostFx: function() {
+      var ctrl = this;
+      var fx = this.postFx;
+      if (!fx) {
+        this.url = this.urlOrig;
+        return;
+      }
+      
+      var canvas = this.fx;
+      var img = new Image();
+      centerX = this.$refs.finalImage.width / 2;
+      centerY = this.$refs.finalImage.height / 2;
+      img.onload = function() {
+        var texture = canvas.texture(img);
+
+        if (fx === 'halftone') {
+          canvas.draw(texture).colorHalftone(centerX, centerY, 0, ctrl.fxOptions.dotSize).update();
+        } else if (fx === 'hex') {
+          canvas.draw(texture).hexagonalPixelate(centerX, centerY, ctrl.fxOptions.hexSize).update();
+        } else if (fx === 'dot') {
+          canvas.draw(texture).dotScreen(centerX, centerY, 0, ctrl.fxOptions.dotSize).update();
+        } else if (fx === 'sepia') {
+          canvas.draw(texture).sepia(1).update();
+        } else if (fx === 'denoise') {
+          canvas.draw(texture).denoise(ctrl.fxOptions.denoiseAmount).update();
+        } else if (fx === 'hue') {
+          canvas.draw(texture).hueSaturation(ctrl.fxOptions.hue, ctrl.fxOptions.saturation).update();
+        }
+        ctrl.url = canvas.toDataURL();
+      };
+      img.src = this.urlOrig;
     },
     blurElement: function(value, obj) {
       var ctrl = this;
@@ -416,38 +459,46 @@ const Builder = {
         e.preventDefault();
         /*down*/
         var obj = design.getActiveObject();
-        obj.top++;
-        if (e.shiftKey) {
-          obj.top += 9;
+        if (obj) {
+          obj.top++;
+          if (e.shiftKey) {
+            obj.top += 9;
+          }
+          design.renderAll();
         }
-        design.renderAll();
       } else if (e.which === 39) {
         e.preventDefault();
         /*right*/
         var obj = design.getActiveObject();
-        obj.left++;
-        if (e.shiftKey) {
-          obj.left += 9;
+        if (obj) {
+          obj.left++;
+          if (e.shiftKey) {
+            obj.left += 9;
+          }
+          design.renderAll();
         }
-        design.renderAll();
       } else if (e.which === 38) {
         e.preventDefault();
         /*up*/
         var obj = design.getActiveObject();
-        obj.top--;
-        if (e.shiftKey) {
-          obj.top -= 9;
+        if (obj) {
+          obj.top--;
+          if (e.shiftKey) {
+            obj.top -= 9;
+          }
+          design.renderAll();
         }
-        design.renderAll();
       } else if (e.which === 37) {
         e.preventDefault();
         /*left*/
         var obj = design.getActiveObject();
-        obj.left--;
-        if (e.shiftKey) {
-          obj.left -= 9;
+        if (obj) {
+          obj.left--;
+          if (e.shiftKey) {
+            obj.left -= 9;
+          }
+          design.renderAll();
         }
-        design.renderAll();
       }
     },
     handleSubmission: function(ev) {
@@ -733,6 +784,8 @@ const Builder = {
       dataUrl = changeDpiDataUrl(dataUrl, 72 * ratio);
       
       this.url = dataUrl;
+      this.urlOrig = dataUrl;
+      this.applyPostFx();
     },
     sendBackwards: function() {
       var activeObject = design.getActiveObject();
