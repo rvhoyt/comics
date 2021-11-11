@@ -3,66 +3,68 @@
 @section('content')
 <div class="container">
     <div class="row">
-      <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-sm-1">
-              <div class="card text-center" style="width:50px;margin-right: 15px;height:100%;">
-              <strong style="font-size:150%" class="likes">{{count($likes)}}</strong>
-              LIKES
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="row">
+              <div class="col-sm-1">
+                <div class="card text-center" style="width:50px;margin-right: 15px;height:100%;">
+                <strong style="font-size:150%" class="likes">{{count($likes)}}</strong>
+                LIKES
+                </div>
+              </div>
+              <div class="col-sm-11">
+                <h1>
+                {{ $strip->title }}
+                </h1>
+                @if (auth()->user() && auth()->user()->id === $strip->user)
+                  <button type="button" id="delete-strip" class="btn btn-danger btn-sm float-right">Delete</button>
+                  <button type="button" id="edit-strip" class="btn btn-primary btn-sm float-right">Edit</button>
+                @endif
+                <div>
+                  <a href="/user/{{$author->id}}">{{$author->name}}</a> &nbsp;&nbsp;&nbsp;{{$strip->created_at->format('j F, Y')}}
+                </div>
               </div>
             </div>
-            <div class="col-sm-11">
-              <h1>
-              {{ $strip->title }}
-              </h1>
-              @if (auth()->user() && auth()->user()->id === $strip->user)
-                <button type="button" id="delete-strip" class="btn btn-danger btn-sm float-right">Delete</button>
-                <button type="button" id="edit-strip" class="btn btn-primary btn-sm float-right">Edit</button>
+          </div>
+          <div class="card-body text-center">
+            <div class="col-sm-12">
+              @if ($prev)
+                <a href="/strips/{{$prev}}{{$source}}" class="btn btn-sm btn-outline-info float-left">Prev</a>
               @endif
-              <div>
-                <a href="/user/{{$author->id}}">{{$author->name}}</a> &nbsp;&nbsp;&nbsp;{{$strip->created_at->format('j F, Y')}}
-              </div>
+              @if ($next)
+                <a href="/strips/{{$next}}{{$source}}" class="btn btn-sm btn-outline-info float-right">Next</a>
+              @endif
             </div>
-          </div>
-        </div>
-        <div class="card-body text-center">
-          <div class="col-sm-12">
-            @if ($prev)
-              <a href="/strips/{{$prev}}{{$source}}" class="btn btn-sm btn-outline-info float-left">Prev</a>
+            @if (auth()->user() && auth()->user()->id === $strip->user)
+              <form id="edit-form" class="form" method="POST" style="display:none;">
+                @csrf
+                <div class="form-group">
+                  <label for="title">Title</label>
+                  <input name="title" class="form-control" value="{{$strip->title}}"/>
+                </div>
+                <div class="form-group">
+                <label for="description">Description</label>
+                  <textarea name="description" class="form-control">{{$strip->description}}</textarea>
+                </div>
+                <button class="btn btn-primary">Submit</button>
+              </form>
             @endif
-            @if ($next)
-              <a href="/strips/{{$next}}{{$source}}" class="btn btn-sm btn-outline-info float-right">Next</a>
-            @endif
-          </div>
-          @if (auth()->user() && auth()->user()->id === $strip->user)
-            <form id="edit-form" class="form" method="POST" style="display:none;">
-              @csrf
-              <div class="form-group">
-                <label for="title">Title</label>
-                <input name="title" class="form-control" value="{{$strip->title}}"/>
-              </div>
-              <div class="form-group">
-              <label for="description">Description</label>
-                <textarea name="description" class="form-control">{{$strip->description}}</textarea>
-              </div>
-              <button class="btn btn-primary">Submit</button>
-            </form>
-          @endif
-          <img
-            src="/strip-images/{{ $strip->url }}"
-            alt="{{ $strip->title}}" width="682px"/>
-          <div class="col-sm-12">
-            <p>{{$strip->description}}</p>
-          </div>
-          <div class="col-sm-12 share-icon">
-            <button type="button" class="@if(!$alreadyLiked) like @else disabled @endif btn btn-primary float-right">
-              Like
-              <span class="badge badge-light likes">{{count($likes)}}</span>
-            </button>
-            &nbsp;
-            <a class="btn btn-primary float-right" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{URL::current()}}">{!! file_get_contents('images/fb.svg') !!} Share</a>&nbsp;
-            <a class="btn btn-primary float-right" target="_blank" href="https://twitter.com/intent/tweet?url={{URL::current()}}&text={{$strip->title}}">{!! file_get_contents('images/twitter.svg') !!} Share</a>
+            <img
+              src="/strip-images/{{ $strip->url }}"
+              alt="{{ $strip->title}}" width="682px"/>
+            <div class="col-sm-12">
+              <p>{{$strip->description}}</p>
+            </div>
+            <div class="col-sm-12 share-icon">
+              <button type="button" class="@if(!$alreadyLiked) like @else disabled @endif btn btn-primary float-right">
+                Like
+                <span class="badge badge-light likes">{{count($likes)}}</span>
+              </button>
+              &nbsp;
+              <a class="btn btn-primary float-right" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{URL::current()}}">{!! file_get_contents('images/fb.svg') !!} Share</a>&nbsp;
+              <a class="btn btn-primary float-right" target="_blank" href="https://twitter.com/intent/tweet?url={{URL::current()}}&text={{$strip->title}}">{!! file_get_contents('images/twitter.svg') !!} Share</a>
+            </div>
           </div>
         </div>
       </div>
