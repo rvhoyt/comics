@@ -639,6 +639,16 @@ const Builder = {
         design.renderAll();
       }
     },
+    loadSVG: function(e) {
+      var ctrl = this;
+      var file = e.target.files[0];
+      var fr = new FileReader();
+      fr.onload = function() {
+        var svg = fr.result;
+        ctrl.addImage(svg, 0, 0);
+      };
+      fr.readAsDataURL(file);
+    },
     maskElements: function() {
       var active = design.getActiveObject();
       if (active._objects.length !== 2) {

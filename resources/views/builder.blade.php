@@ -100,6 +100,10 @@
         <button type="button" @click="bringToFront()" :disabled="!activeSelectionCount">Bring to Front</button>
         <br/><br/>
         <button type="button" @click="addTextbox()">Add Textbox</button>
+        <br/>
+        <label class="custom-file-upload">Load SVG
+          <input type="file" class="btn" @change="loadSVG" accept="image/svg+xml"/>
+        </label>
         
         <div v-if="activeSelectionType === 'textbox'">
           <label>Font Size:

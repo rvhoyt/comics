@@ -10988,3 +10988,14 @@ a.text-dark:focus {
   margin: 0 auto;
   fill: #fff;
 }
+
+.custom-file-upload input[type="file"] {
+    display: none;
+}
+.custom-file-upload {
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+}
