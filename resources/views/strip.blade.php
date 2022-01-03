@@ -52,7 +52,7 @@
             @endif
             <img
               src="/strip-images/{{ $strip->url }}"
-              alt="{{ $strip->title}}" width="682px"/>
+              alt="{{ $strip->title}}" width="682px" style="max-width:100%"/>
             <div class="col-sm-12">
               <p>{{$strip->description}}</p>
             </div>
