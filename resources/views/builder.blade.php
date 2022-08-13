@@ -101,7 +101,7 @@
         <br/><br/>
         <button type="button" @click="addTextbox()">Add Textbox</button>
         <br/>
-        <label class="custom-file-upload">Load SVG
+        <label class="custom-file-upload">Load Image
           <input type="file" class="btn" @change="loadSVG" accept="image/svg+xml"/>
         </label>
         
