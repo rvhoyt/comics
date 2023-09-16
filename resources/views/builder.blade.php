@@ -102,7 +102,7 @@
         <button type="button" @click="addTextbox()">Add Textbox</button>
         <br/>
         <label class="custom-file-upload">Load Image
-          <input type="file" class="btn" @change="loadSVG" accept="image/svg+xml"/>
+          <input type="file" class="btn" @change="loadSVG" accept="image/png, image/gif, image/jpeg, image/svg+xml"/>
         </label>
         
         <div v-if="activeSelectionType === 'textbox'">
