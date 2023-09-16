@@ -143,9 +143,8 @@ class StripController extends Controller
       
       require_once '../app/helpers.php';
       
-      deleteFromB2($strip->fileId, $strip->url);
-      
-      if ($request->user()->id === $strip->user) {
+      if ($request->user()->id === $strip->user || $request->user()->admin) {
+        deleteFromB2($strip->fileId, $strip->url);
         $strip->delete();
       }
       

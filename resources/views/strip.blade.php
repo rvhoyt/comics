@@ -17,8 +17,10 @@
                 <h1>
                 {{ $strip->title }}
                 </h1>
-                @if (auth()->user() && auth()->user()->id === $strip->user)
+                @if (auth()->user() && (auth()->user()->id === $strip->user || auth()->user()->admin))
                   <button type="button" id="delete-strip" class="btn btn-danger btn-sm float-right">Delete</button>
+                @endif
+                @if (auth()->user() && auth()->user()->id === $strip->user)
                   <button type="button" id="edit-strip" class="btn btn-primary btn-sm float-right">Edit</button>
                 @endif
                 <div>
