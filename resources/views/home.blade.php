@@ -11,6 +11,7 @@
           <h1>Comic Crafter</h1>
           @auth
             <a href="{{ url('/builder') }}" class="btn btn-primary">Make a Strip!</a>
+            <a href="https://discord.gg/9BunZDKY3b" target="_blank" class="btn btn-secondary">Join Our Discord</a>
           @else
             <span>Please Login to make strips</span>
           @endif
