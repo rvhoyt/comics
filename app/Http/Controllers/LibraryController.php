@@ -46,7 +46,7 @@ class LibraryController extends Controller
     private function streamLibraryData(Request $request)
     {
         return new StreamedResponse(function () use ($request) {
-            $chunkSize = 100; // Define the chunk size
+            $chunkSize = 10; // Define the chunk size
             $buffer = []; // Buffer to hold chunked data
             $firstChunk = true; // Track if it's the first chunk
             echo '['; // Start the JSON array
