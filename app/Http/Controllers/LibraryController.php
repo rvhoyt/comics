@@ -46,7 +46,9 @@ class LibraryController extends Controller
     private function streamLibraryData(Request $request)
     {
         return new StreamedResponse(function () use ($request) {
-            $firstRecord = true; // Track the first record
+            $chunkSize = 100; // Define the chunk size
+            $buffer = []; // Buffer to hold chunked data
+            $firstChunk = true; // Track if it's the first chunk
             echo '['; // Start the JSON array
             
             $libraries = DB::table('libraries')
@@ -54,15 +56,34 @@ class LibraryController extends Controller
                 ->cursor(); // Use cursor for efficient memory usage
             
             foreach ($libraries as $library) {
-                if (!$firstRecord) {
-                    echo ','; // Add a comma between JSON objects
+                $buffer[] = $library; // Add library to buffer
+
+                // When buffer reaches chunk size, flush the chunk
+                if (count($buffer) >= $chunkSize) {
+                    if (!$firstChunk) {
+                        echo ','; // Add comma between JSON chunks
+                    }
+
+                    // Encode the buffer as JSON without surrounding brackets
+                    echo substr(json_encode($buffer), 1, -1);
+                    ob_flush();
+                    flush();
+                    
+                    $buffer = []; // Clear buffer after flushing
+                    $firstChunk = false; // Mark subsequent chunks
                 }
-                
-                echo json_encode($library);
+            }
+
+            // Flush any remaining data in the buffer
+            if (!empty($buffer)) {
+                if (!$firstChunk) {
+                    echo ','; // Add comma for remaining chunk
+                }
+
+                // Encode the remaining buffer as JSON without surrounding brackets
+                echo substr(json_encode($buffer), 1, -1);
                 ob_flush();
                 flush();
-                
-                $firstRecord = false; // Mark that the first record has been processed
             }
             
             echo ']'; // Close the JSON array
@@ -73,5 +94,6 @@ class LibraryController extends Controller
             'Cache-Control' => 'no-cache, must-revalidate'
         ]);
     }
+
 
 }
