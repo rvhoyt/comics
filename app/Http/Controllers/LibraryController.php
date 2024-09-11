@@ -49,55 +49,51 @@ class LibraryController extends Controller
             $chunkSize = 10; // Define the chunk size
             $buffer = []; // Buffer to hold chunked data
             $firstChunk = true; // Track if it's the first chunk
+            echo '['; // Start the JSON array
             
-            // Start output buffering with gzip handler
-            if (ob_start('ob_gzhandler')) {
-                echo '['; // Start the JSON array
-                
-                $libraries = DB::table('libraries')
-                    ->where('user_id', $request->user()->id)
-                    ->cursor(); // Use cursor for efficient memory usage
-                
-                foreach ($libraries as $library) {
-                    $buffer[] = $library; // Add library to buffer
+            $libraries = DB::table('libraries')
+                ->where('user_id', $request->user()->id)
+                ->cursor(); // Use cursor for efficient memory usage
+            
+            foreach ($libraries as $library) {
+                $buffer[] = $library; // Add library to buffer
 
-                    // When buffer reaches chunk size, flush the chunk
-                    if (count($buffer) >= $chunkSize) {
-                        if (!$firstChunk) {
-                            echo ','; // Add comma between JSON chunks
-                        }
-
-                        // Encode the buffer as JSON without surrounding brackets
-                        echo substr(json_encode($buffer), 1, -1);
-                        ob_flush();
-                        flush();
-                        
-                        $buffer = []; // Clear buffer after flushing
-                        $firstChunk = false; // Mark subsequent chunks
-                    }
-                }
-
-                // Flush any remaining data in the buffer
-                if (!empty($buffer)) {
+                // When buffer reaches chunk size, flush the chunk
+                if (count($buffer) >= $chunkSize) {
                     if (!$firstChunk) {
-                        echo ','; // Add comma for remaining chunk
+                        echo ','; // Add comma between JSON chunks
                     }
 
-                    // Encode the remaining buffer as JSON without surrounding brackets
+                    // Encode the buffer as JSON without surrounding brackets
                     echo substr(json_encode($buffer), 1, -1);
                     ob_flush();
                     flush();
+                    
+                    $buffer = []; // Clear buffer after flushing
+                    $firstChunk = false; // Mark subsequent chunks
                 }
-                
-                echo ']'; // Close the JSON array
+            }
+
+            // Flush any remaining data in the buffer
+            if (!empty($buffer)) {
+                if (!$firstChunk) {
+                    echo ','; // Add comma for remaining chunk
+                }
+
+                // Encode the remaining buffer as JSON without surrounding brackets
+                echo substr(json_encode($buffer), 1, -1);
                 ob_flush();
                 flush();
-                ob_end_flush(); // End the gzip compression
             }
+            
+            echo ']'; // Close the JSON array
+            ob_flush();
+            flush();
         }, 200, [
             'Content-Type' => 'application/json',
-            'Content-Encoding' => 'gzip', // Indicate that the content is gzipped
             'Cache-Control' => 'no-cache, must-revalidate'
         ]);
     }
+
+
 }
