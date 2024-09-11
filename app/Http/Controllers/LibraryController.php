@@ -45,17 +45,33 @@ class LibraryController extends Controller
     
     private function streamLibraryData(Request $request)
     {
-        return new StreamedResponse(function() use ($request) {
-            DB::table('libraries')
+        return new StreamedResponse(function () use ($request) {
+            $firstRecord = true; // Track the first record
+            echo '['; // Start the JSON array
+            
+            $libraries = DB::table('libraries')
                 ->where('user_id', $request->user()->id)
-                ->chunk(25, function($libraries) {
-                    echo json_encode($libraries);
-                    ob_flush();
-                    flush();
-                });
+                ->cursor(); // Use cursor for efficient memory usage
+            
+            foreach ($libraries as $library) {
+                if (!$firstRecord) {
+                    echo ','; // Add a comma between JSON objects
+                }
+                
+                echo json_encode($library);
+                ob_flush();
+                flush();
+                
+                $firstRecord = false; // Mark that the first record has been processed
+            }
+            
+            echo ']'; // Close the JSON array
+            ob_flush();
+            flush();
         }, 200, [
             'Content-Type' => 'application/json',
             'Cache-Control' => 'no-cache, must-revalidate'
         ]);
     }
+
 }
