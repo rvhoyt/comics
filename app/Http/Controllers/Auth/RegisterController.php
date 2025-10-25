@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Session;
 
 class RegisterController extends Controller
 {
@@ -53,6 +54,16 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'captcha_answer' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $expectedAnswer = Session::pull('registration_captcha_answer');
+
+                    if ($expectedAnswer === null || (int) $value !== (int) $expectedAnswer) {
+                        $fail(__('The captcha response was incorrect.'));
+                    }
+                },
+            ],
         ]);
     }
 
@@ -69,5 +80,37 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showRegistrationForm()
+    {
+        $question = $this->generateCaptchaQuestion();
+
+        Session::put('registration_captcha_answer', $question['answer']);
+
+        return view('auth.register', [
+            'captchaQuestion' => $question['prompt'],
+        ]);
+    }
+
+    /**
+     * Generate a simple arithmetic captcha question.
+     *
+     * @return array{prompt: string, answer: int}
+     */
+    protected function generateCaptchaQuestion()
+    {
+        $first = random_int(1, 9);
+        $second = random_int(1, 9);
+
+        return [
+            'prompt' => __('What is :first + :second?', ['first' => $first, 'second' => $second]),
+            'answer' => $first + $second,
+        ];
     }
 }
